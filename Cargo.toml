@@ -1,0 +1,50 @@
+[package]
+name = "fluid-webgpu"
+version = "0.1.0"
+authors = ["li jinlei <grenlight@icloud.com>"]
+edition = "2018"
+
+[lib]
+crate-type = ["rlib", "staticlib"]
+# [target.'cfg(target_os = "android")'.lib]
+# crate-type = ["cdylib"]
+
+[features]
+default = []
+
+[dependencies]
+libc = "*"
+wgpu = { git = "https://github.com/gfx-rs/wgpu-rs", rev = "cbdd74fb408d87c04423bd375806b3b6c1be1bb0"  }
+# wgpu = { path = "../../wgpu-rs"}
+# uni-view = { path="../idroid/uni-view" }
+# idroid = { path="../idroid/idroid" }
+uni-view = { git = "https://github.com/grenlight/idroid", rev = "10aeb6941080d6153b1fb84f8e249fda0c89b739" }
+idroid = { git = "https://github.com/grenlight/idroid", rev = "10aeb6941080d6153b1fb84f8e249fda0c89b739" }
+
+nalgebra-glm = "*"
+image = "0.22.1"
+env_logger = "0.5"
+log = "0.4"
+failure = "0.1"
+lazy_static = "*"
+rand = "*"
+
+[target.'cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))'.dependencies]
+shaderc = "0.6.1"
+objc = "*"
+winit = "0.20.0-alpha4"
+raw-window-handle = "0.3"
+
+[build-dependencies]
+shaderc = "0.6.1"
+
+[dev-dependencies]
+env_logger = "0.5"
+lazy_static = "*"
+palette = "0.4"
+rand = "0.6"
+
+[patch.crates-io]
+# fixed bug: https://github.com/gfx-rs/gfx/issues/3086
+gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx", rev = "8bd4f0d1f8ccc3875183ccb4b621023edb0ed94a" }
+gfx-hal = { git = "https://github.com/gfx-rs/gfx",  rev = "8bd4f0d1f8ccc3875183ccb4b621023edb0ed94a"}

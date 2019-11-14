@@ -1,0 +1,13 @@
+target/
+**/*.rs.bk
+*/.DS_STORE
+.idea/
+
+**/Carthage
+**/Pods
+**/Podfile.lock
+
+**/*.pbxuser
+!default.pbxuser
+**//xcuserdata
+**/xcuserdata/*.xcuserdatad
