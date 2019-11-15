@@ -3,7 +3,6 @@ pub use idroid::utils::{depth_stencil, matrix_helper};
 pub use uni_view::*;
 
 mod filter;
-mod node;
 
 mod particle;
 pub use particle::VectorFieldView;

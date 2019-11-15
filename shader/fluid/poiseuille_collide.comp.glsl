@@ -56,7 +56,7 @@ void main() {
   }
   if (isInflowCell(material)) {
     // 入流加一个速度（外力项）
-    velocity = vec2(0.1, 0.0);
+    velocity = vec2(0.1, 0.05);
   }
   // 更新宏观速度，密度
   updateMacro(uv, velocity, rho);

@@ -21,7 +21,13 @@ struct Particle {
 };
 layout(set = 0, binding = 1) buffer ParticleBuffer { Particle pb[]; };
 layout(set = 0, binding = 2) buffer FieldBuffer { vec4 fb[]; };
-layout(set = 0, binding = 3) buffer Canvas { float pixel_alpha[]; };
+
+struct PixelInfo {
+  float alpha;
+  // density
+  float rho;
+};
+layout(set = 0, binding = 3) buffer Canvas { PixelInfo pixel_info[]; };
 
 vec4 srcData(int u, int v) { return fb[v * int(lattice_num.x) + u]; }
 
@@ -49,13 +55,14 @@ vec4 bilinear_interpolate(vec2 uv) {
 int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 bool isBounceBackCell(int material) { return material == 2; }
 
-void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px, int py) {
+void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px, int py, float rho) {
   for (int x = 0; x < point_size; x++) {
     for (int y = 0; y < point_size; y++) {
       ivec2 coords = ivec2(px + x, py + y);
       if (coords.x >= 0 && coords.x < canvas_size.x && coords.y >= 0 &&
           coords.y < canvas_size.y) {
-        pixel_alpha[coords.x + canvas_size.x * coords.y] = particle.fade;
+        pixel_info[coords.x + canvas_size.x * coords.y].alpha = particle.fade;
+        pixel_info[coords.x + canvas_size.x * coords.y].rho = rho;
       }
     }
   }
@@ -106,12 +113,12 @@ void main() {
       ivec2 pixel_coords =
           ivec2(round((particle.pos.x + 1.0) / pixel_distance.x),
                 round((particle.pos.y + 1.0) / pixel_distance.y));
-      int point_size = 3;
+      int point_size = 2;
       int px = pixel_coords.x - point_size / 2;
       int py = pixel_coords.y - point_size / 2;
 
       // 更新指定范围内的所有像素的 alpha
-      update_canvas(point_size, ivec2(canvas_size), particle, px, py);
+      update_canvas(point_size, ivec2(canvas_size), particle, px, py, f_info.z);
     }
       
   }

@@ -35,6 +35,14 @@ struct Particle {
     fade: f32,
 }
 
+#[repr(C)]
+#[derive(Copy, Clone)]
+struct PixelInfo {
+    alpha: f32,
+    // density
+    rho: f32,
+}
+
 mod poiseuille_flow;
 pub use poiseuille_flow::PoiseuilleFlow;
 

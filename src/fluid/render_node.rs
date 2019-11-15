@@ -1,4 +1,4 @@
-use super::ParticleUniform;
+use super::{ParticleUniform, PixelInfo};
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
@@ -38,7 +38,7 @@ impl RenderNode {
         let view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
         let canvas_data = init_canvas_data(sc_desc);
-        let canvas_buffer_size = (sc_desc.width * sc_desc.height * 4) as wgpu::BufferAddress;
+        let canvas_buffer_size = (sc_desc.width * sc_desc.height * std::mem::size_of::<PixelInfo>() as u32) as wgpu::BufferAddress;
         let (canvas_buffer, _) =
             idroid::utils::create_storage_buffer(device, encoder, &canvas_data, canvas_buffer_size);
         let vertex_data = self::particle_vertex_data(particle);
@@ -238,11 +238,11 @@ fn init_particle_data(num: wgpu::Extent3d) -> Vec<Particle> {
     data
 }
 
-fn init_canvas_data(sc_desc: &wgpu::SwapChainDescriptor) -> Vec<f32> {
-    let mut data: Vec<f32> = vec![];
-    for w in 0..sc_desc.width {
-        for h in 0..sc_desc.height {
-            data.push(0.0);
+fn init_canvas_data(sc_desc: &wgpu::SwapChainDescriptor) -> Vec<PixelInfo> {
+    let mut data: Vec<PixelInfo> = vec![];
+    for _ in 0..sc_desc.width {
+        for _ in 0..sc_desc.height {
+            data.push(PixelInfo{ alpha: 0.0, rho: 0.0});
         }
     }
     data

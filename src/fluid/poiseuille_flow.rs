@@ -28,16 +28,12 @@ pub struct PoiseuilleFlow {
 use super::FluidUniform;
 
 fn init_data(nx: u32, ny: u32) -> (Vec<f32>, Vec<[f32; 4]>) {
-    let w0 = 4.0 / 9.0;
-    let w1 = 1.0 / 9.0;
-    let w2 = 1.0 / 36.0;
     let mut lattice: Vec<f32> = vec![];
     let mut fluid: Vec<[f32; 4]> = vec![];
-    let weight = vec![w0, w1, w1, w1, w1, w2, w2, w2, w2];
     for j in 0..ny {
         for i in 0..nx {
-            for k in 0..9 {
-                lattice.push(weight[k]);
+            for _ in 0..9 {
+                lattice.push(0.0);
             }
             fluid.push([0.0, 0.0, 1.0, setup_open_geometry(i, j, nx, ny) as f32]);
         }
@@ -59,7 +55,12 @@ fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32) -> u32 {
     }
 
     // 障碍
-    if x > 8 && x < 12 && y >  ny / 2 - 2 && y < ny / 2 + 2 {
+    let half_size = 6;
+    let size = half_size * 2;
+    if (x > nx / 4 && x < nx / 4 + size && y > ny / 2 - (half_size + 2) && y < ny / 2 + (half_size + 2))
+        || (x > nx / 2 && x < nx / 2 + size && y > ny / 4 - half_size && y < ny / 4 + half_size)
+        || (x > nx / 2 && x < nx / 2 + size && y > (ny as f32 / 1.25) as u32 - half_size && y < (ny as f32 / 1.25) as u32 + half_size)
+    {
         return 2;
     }
 
@@ -114,11 +115,12 @@ impl PoiseuilleFlow {
     pub fn new(app_view: AppView) -> Self {
         let mut app_view = app_view;
 
-        let lattice_num = (32, 24);
+        let lattice_num = (128, 96);
         let threadgroup_count: (u32, u32) = ((lattice_num.0 + 15) / 16, (lattice_num.1 + 15) / 16);
 
         let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
-        let particle_num = Extent3d { width: lattice_num.0 * 4, height: lattice_num.1 * 4, depth: 1 };
+        let particle_num =
+            Extent3d { width: lattice_num.0 * 3, height: lattice_num.1 * 3, depth: 1 };
 
         let swap = 0_i32;
 
@@ -256,7 +258,7 @@ impl SurfaceView for PoiseuilleFlow {
 
     fn enter_frame(&mut self) {
         self.swap += 1;
-        if self.swap % 20 != 0 {
+        if self.swap % 10 != 0 {
             return;
         }
         // println!("swap: {}", self.swap);

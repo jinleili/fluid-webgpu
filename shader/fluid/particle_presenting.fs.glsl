@@ -13,11 +13,17 @@ layout(set = 0, binding = 1) uniform ParticleUniform {
   vec2 pixel_distance;
 };
 
-layout(set = 0, binding = 2) buffer Canvas { float pixel_alpha[]; };
+struct PixelInfo {
+  float alpha;
+  // density
+  float rho;
+};
+layout(set = 0, binding = 2) buffer Canvas { PixelInfo pixel_info[]; };
 
 void main(void) {
   ivec2 pixel_coord = ivec2(round(gl_FragCoord.x), round(gl_FragCoord.y));
-  float alpha = pixel_alpha[pixel_coord.x + pixel_coord.y * int(canvas_size.x)];
+  PixelInfo pixel =
+      pixel_info[pixel_coord.x + pixel_coord.y * int(canvas_size.x)];
 
-  frag_color = vec4(0.9, 0.7, 0.9, alpha);
+  frag_color = vec4(pixel.rho, 0.85, 0.9, pixel.alpha);
 }
