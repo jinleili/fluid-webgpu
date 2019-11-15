@@ -1,6 +1,4 @@
-use crate::node::{F32BufferNode, NoneNode};
-use idroid::node::{ComputeNode, ImageViewNode};
-use idroid::texture;
+use idroid::node::ComputeNode;
 use idroid::utils::MVPUniform;
 use idroid::SurfaceView;
 use wgpu::Extent3d;
@@ -25,7 +23,6 @@ pub struct PoiseuilleFlow {
     particle_node: RenderNode,
 
     swap: i32,
-    isCopingData: bool,
 }
 
 use super::FluidUniform;
@@ -61,6 +58,11 @@ fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32) -> u32 {
         return 6; // outflow
     }
 
+    // 障碍
+    if x > 8 && x < 12 && y >  ny / 2 - 2 && y < ny / 2 + 2 {
+        return 2;
+    }
+
     return 1; // everything else shall be bulk fluid
 }
 
@@ -70,21 +72,32 @@ fn get_fluid_uniform(
     let w0 = 4.0 / 9.0;
     let w1 = 1.0 / 9.0;
     let w2 = 1.0 / 36.0;
-    // cell structure (subcell numbers):
+    //  D2Q9 lattice :
     // 6 2 5
     // 3 0 1
     // 7 4 8
     // 按钮 屏幕 坐标取值的特点来指定方向坐标
+    // let e_and_w: [[f32; 4]; 9] = [
+    //     [0.0, 0.0, w0, 0.0],
+    //     [1.0, 0.0, w1, 0.0],
+    //     [0.0, -1.0, w1, 0.0],
+    //     [-1.0, 0.0, w1, 0.0],
+    //     [0.0, 1.0, w1, 0.0],
+    //     [1.0, -1.0, w2, 0.0],
+    //     [-1.0, -1.0, w2, 0.0],
+    //     [-1.0, 1.0, w2, 0.0],
+    //     [1.0, 1.0, w2, 0.0],
+    // ];
     let e_and_w: [[f32; 4]; 9] = [
         [0.0, 0.0, w0, 0.0],
         [1.0, 0.0, w1, 0.0],
-        [0.0, -1.0, w1, 0.0],
-        [-1.0, 0.0, w1, 0.0],
         [0.0, 1.0, w1, 0.0],
-        [1.0, -1.0, w2, 0.0],
-        [-1.0, -1.0, w2, 0.0],
-        [-1.0, 1.0, w2, 0.0],
+        [-1.0, 0.0, w1, 0.0],
+        [0.0, -1.0, w1, 0.0],
         [1.0, 1.0, w2, 0.0],
+        [-1.0, 1.0, w2, 0.0],
+        [-1.0, -1.0, w2, 0.0],
+        [1.0, -1.0, w2, 0.0],
     ];
 
     let uniform = FluidUniform {
@@ -94,21 +107,18 @@ fn get_fluid_uniform(
         particle_num: [particle.width as f32, particle.height as f32],
         pixel_distance: [2.0 / sc_desc.width as f32, 2.0 / sc_desc.height as f32],
     };
-    println!("{:?}", uniform);
     uniform
 }
 
 impl PoiseuilleFlow {
     pub fn new(app_view: AppView) -> Self {
-        use std::mem;
         let mut app_view = app_view;
 
-        // 必须为 16 的倍数
-        let lattice_num = 32;
-        let threadgroup_count: (u32, u32) = (lattice_num / 16, lattice_num / 16);
+        let lattice_num = (32, 24);
+        let threadgroup_count: (u32, u32) = ((lattice_num.0 + 15) / 16, (lattice_num.1 + 15) / 16);
 
-        let lattice = Extent3d { width: lattice_num, height: lattice_num, depth: 1 };
-        let particle_num = Extent3d { width: lattice_num * 4, height: lattice_num * 3, depth: 1 };
+        let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
+        let particle_num = Extent3d { width: lattice_num.0 * 4, height: lattice_num.1 * 4, depth: 1 };
 
         let swap = 0_i32;
 
@@ -153,7 +163,7 @@ impl PoiseuilleFlow {
             &mut app_view.device,
             &mut encoder,
             super::ParticleUniform {
-                lattice_size:  [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
+                lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
                 lattice_num: [lattice.width as f32, lattice.height as f32],
                 particle_num: [particle_num.width as f32, particle_num.height as f32],
                 canvas_size: [app_view.sc_desc.width as f32, app_view.sc_desc.height as f32],
@@ -231,7 +241,6 @@ impl PoiseuilleFlow {
             particle_node,
 
             swap,
-            isCopingData: false,
         }
     }
 }

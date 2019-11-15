@@ -22,14 +22,15 @@ void updateCollide(ivec2 uv, int direction, float collide) {
 // 更新流体宏观速度等信息
 void updateMacro(ivec2 uv, vec2 velocity, float rho) {
   int destIndex = uv.x + uv.y * int(lattice_num.x);
-  macro_info[destIndex].xyz = vec3(velocity,rho);
+  macro_info[destIndex].xyz = vec3(velocity, rho);
 }
 
 void main() {
   ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
+  if (uv.x >= int(lattice_num).x || uv.y >= int(lattice_num.y)) {
+    return;
+  }
   // 用来判断当前是不是边界，障碍等
-  // Material number meaning (geometry is only changed by the interaction
-  // shader)
   int material = int(macro_info[indexOfFluid(uv)].w);
   // 边界节点不需要计算碰撞
   if (isBounceBackCell(material)) {
@@ -55,7 +56,7 @@ void main() {
   }
   if (isInflowCell(material)) {
     // 入流加一个速度（外力项）
-    velocity = vec2(0.1, 0.05);
+    velocity = vec2(0.1, 0.0);
   }
   // 更新宏观速度，密度
   updateMacro(uv, velocity, rho);

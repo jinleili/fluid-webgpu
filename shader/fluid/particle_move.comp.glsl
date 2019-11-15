@@ -47,11 +47,23 @@ vec4 bilinear_interpolate(vec2 uv) {
 }
 
 int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
+bool isBounceBackCell(int material) { return material == 2; }
+
+void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px, int py) {
+  for (int x = 0; x < point_size; x++) {
+    for (int y = 0; y < point_size; y++) {
+      ivec2 coords = ivec2(px + x, py + y);
+      if (coords.x >= 0 && coords.x < canvas_size.x && coords.y >= 0 &&
+          coords.y < canvas_size.y) {
+        pixel_alpha[coords.x + canvas_size.x * coords.y] = particle.fade;
+      }
+    }
+  }
+}
 
 void main() {
   // 粒子个数与格子是不一致的
   ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-
   if (uv.x >= int(particle_num.x) || uv.y >= int(particle_num.y)) {
     return;
   }
@@ -70,25 +82,13 @@ void main() {
     // 计算粒子所在的 lattice
     // 粒子的坐标空间是【-1， 1】，需要转到 【0， 2】
     vec2 new_pos = particle.pos.xy + vec2(1.0, 1.0);
-    vec2 ij = vec2(new_pos.x / lattice_size.x + 0.5,
-                   new_pos.y / lattice_size.y + 0.5);
+    vec2 ij = vec2(new_pos.x / lattice_size.x - 0.5,
+                   new_pos.y / lattice_size.y - 0.5);
     vec4 f_info = bilinear_interpolate(ij);
     // vec4 f_info = srcData(int(floor(ij.x)), int(floor(ij.y)));
 
-    particle.pos.xy += (f_info.xy * pixel_distance * 20.0);
-    // particle.pos.xy += (f_info.xy * 10.0);
-
-    // 更新画布上对应像素的 alpha 值：
-    // 先计算出对应到画面上的像素坐标;
-    ivec2 pixel_coords =
-        ivec2(round((particle.pos.x + 1.0) / pixel_distance.x),
-              round((particle.pos.y + 1.0) / pixel_distance.y));
-    int point_size = 4;
-    int px = pixel_coords.x - point_size / 2;
-    int py = pixel_coords.y - point_size / 2;
-
-    ivec2 size = ivec2(canvas_size);
-    // 更新指定范围内的所有像素的 alpha
+    particle.pos.xy += (f_info.xy * pixel_distance * 15.0);
+    // 淡入效果
     if (particle.fade < 1.0) {
       if (particle.fade < 0.95) {
         particle.fade += 0.05;
@@ -96,15 +96,24 @@ void main() {
         particle.fade = 1.0;
       }
     }
-    for (int x = 0; x < point_size; x++) {
-      for (int y = 0; y < point_size; y++) {
-        ivec2 coords = ivec2(px + x, py + y);
-        if (coords.x >= 0 && coords.x < size.x && coords.y >= 0 &&
-            coords.y < size.y) {
-          pixel_alpha[coords.x + size.x * coords.y] = particle.fade;
-        }
-      }
+
+    // 计算新位置是否在边界或障碍格子内
+    ivec2 lattice = ivec2((particle.pos.xy + vec2(1.0, 1.0)) / lattice_size);
+    int material = int(srcData(lattice.x, lattice.y).w);
+    if (isBounceBackCell(material) == false) {
+      // 更新画布上对应像素的 alpha 值：
+      // 先计算出对应到画面上的像素坐标;
+      ivec2 pixel_coords =
+          ivec2(round((particle.pos.x + 1.0) / pixel_distance.x),
+                round((particle.pos.y + 1.0) / pixel_distance.y));
+      int point_size = 3;
+      int px = pixel_coords.x - point_size / 2;
+      int py = pixel_coords.y - point_size / 2;
+
+      // 更新指定范围内的所有像素的 alpha
+      update_canvas(point_size, ivec2(canvas_size), particle, px, py);
     }
+      
   }
 
   pb[indexOfParticle(uv)] = particle;
