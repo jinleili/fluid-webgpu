@@ -13,6 +13,8 @@ layout(set = 0, binding = 0) uniform ParticleUniform {
 
 struct PixelInfo {
   float alpha;
+  // absolute velocity
+  float speed;
   // density
   float rho;
 };

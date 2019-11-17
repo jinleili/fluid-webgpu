@@ -242,7 +242,7 @@ fn init_canvas_data(sc_desc: &wgpu::SwapChainDescriptor) -> Vec<PixelInfo> {
     let mut data: Vec<PixelInfo> = vec![];
     for _ in 0..sc_desc.width {
         for _ in 0..sc_desc.height {
-            data.push(PixelInfo{ alpha: 0.0, rho: 0.0});
+            data.push(PixelInfo{ alpha: 0.0, speed: 0.0, rho: 0.0});
         }
     }
     data

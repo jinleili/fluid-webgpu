@@ -39,6 +39,8 @@ struct Particle {
 #[derive(Copy, Clone)]
 struct PixelInfo {
     alpha: f32,
+    // absolute velocity
+    speed: f32,
     // density
     rho: f32,
 }

@@ -24,6 +24,8 @@ layout(set = 0, binding = 2) buffer FieldBuffer { vec4 fb[]; };
 
 struct PixelInfo {
   float alpha;
+  // absolute velocity
+  float speed;
   // density
   float rho;
 };
@@ -55,14 +57,14 @@ vec4 bilinear_interpolate(vec2 uv) {
 int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 bool isBounceBackCell(int material) { return material == 2; }
 
-void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px, int py, float rho) {
+void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px, int py, vec4 f_info) {
+  PixelInfo info = PixelInfo(particle.fade, abs(f_info.x) + abs(f_info.y) * 100.0, f_info.z);
   for (int x = 0; x < point_size; x++) {
     for (int y = 0; y < point_size; y++) {
       ivec2 coords = ivec2(px + x, py + y);
       if (coords.x >= 0 && coords.x < canvas_size.x && coords.y >= 0 &&
           coords.y < canvas_size.y) {
-        pixel_info[coords.x + canvas_size.x * coords.y].alpha = particle.fade;
-        pixel_info[coords.x + canvas_size.x * coords.y].rho = rho;
+        pixel_info[coords.x + canvas_size.x * coords.y] = info;
       }
     }
   }
@@ -118,7 +120,7 @@ void main() {
       int py = pixel_coords.y - point_size / 2;
 
       // 更新指定范围内的所有像素的 alpha
-      update_canvas(point_size, ivec2(canvas_size), particle, px, py, f_info.z);
+      update_canvas(point_size, ivec2(canvas_size), particle, px, py, f_info);
     }
       
   }

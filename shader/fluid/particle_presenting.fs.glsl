@@ -15,6 +15,8 @@ layout(set = 0, binding = 1) uniform ParticleUniform {
 
 struct PixelInfo {
   float alpha;
+  // absolute velocity
+  float speed;
   // density
   float rho;
 };
@@ -25,5 +27,5 @@ void main(void) {
   PixelInfo pixel =
       pixel_info[pixel_coord.x + pixel_coord.y * int(canvas_size.x)];
 
-  frag_color = vec4(pixel.rho, 0.85, 0.9, pixel.alpha);
+  frag_color = vec4(min(max(pixel.speed, 0.8), 1.0), max(pixel.rho, 0.8), 0.8, pixel.alpha);
 }
