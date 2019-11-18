@@ -1,5 +1,4 @@
 use idroid::node::ComputeNode;
-use idroid::utils::MVPUniform;
 use idroid::SurfaceView;
 use wgpu::Extent3d;
 
@@ -17,7 +16,7 @@ pub struct PoiseuilleFlow {
     uniform_buf2: wgpu::Buffer,
     fluid_buffer: wgpu::Buffer,
 
-    propagate_node: ComputeNode,
+    boundary_node: ComputeNode,
     collide_node: ComputeNode,
 
     particle_node: RenderNode,
@@ -57,9 +56,15 @@ fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32) -> u32 {
     // 障碍
     let half_size = 6;
     let size = half_size * 2;
-    if (x > nx / 4 && x < nx / 4 + size && y > ny / 2 - (half_size + 2) && y < ny / 2 + (half_size + 2))
+    if (x > nx / 4
+        && x < nx / 4 + size
+        && y > ny / 2 - (half_size + 2)
+        && y < ny / 2 + (half_size + 2))
         || (x > nx / 2 && x < nx / 2 + size && y > ny / 4 - half_size && y < ny / 4 + half_size)
-        || (x > nx / 2 && x < nx / 2 + size && y > (ny as f32 / 1.25) as u32 - half_size && y < (ny as f32 / 1.25) as u32 + half_size)
+        || (x > nx / 2
+            && x < nx / 2 + size
+            && y > (ny as f32 / 1.25) as u32 - half_size
+            && y < (ny as f32 / 1.25) as u32 + half_size)
     {
         return 2;
     }
@@ -78,17 +83,6 @@ fn get_fluid_uniform(
     // 3 0 1
     // 7 4 8
     // 按钮 屏幕 坐标取值的特点来指定方向坐标
-    // let e_and_w: [[f32; 4]; 9] = [
-    //     [0.0, 0.0, w0, 0.0],
-    //     [1.0, 0.0, w1, 0.0],
-    //     [0.0, -1.0, w1, 0.0],
-    //     [-1.0, 0.0, w1, 0.0],
-    //     [0.0, 1.0, w1, 0.0],
-    //     [1.0, -1.0, w2, 0.0],
-    //     [-1.0, -1.0, w2, 0.0],
-    //     [-1.0, 1.0, w2, 0.0],
-    //     [1.0, 1.0, w2, 0.0],
-    // ];
     let e_and_w: [[f32; 4]; 9] = [
         [0.0, 0.0, w0, 0.0],
         [1.0, 0.0, w1, 0.0],
@@ -178,7 +172,7 @@ impl PoiseuilleFlow {
         );
 
         // Create the render pipeline
-        let propagate_node = ComputeNode::new(
+        let boundary_node = ComputeNode::new(
             &mut app_view.device,
             threadgroup_count,
             &uniform_buf,
@@ -186,7 +180,7 @@ impl PoiseuilleFlow {
             vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
             vec![buffer_range, buffer_range, fluid_buf_range],
             vec![],
-            ("fluid/poiseuille_propagate", env!("CARGO_MANIFEST_DIR")),
+            ("fluid/poiseuille_boundary", env!("CARGO_MANIFEST_DIR")),
         );
         let collide_node = ComputeNode::new(
             &mut app_view.device,
@@ -196,7 +190,7 @@ impl PoiseuilleFlow {
             vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
             vec![buffer_range, buffer_range, fluid_buf_range],
             vec![],
-            ("fluid/poiseuille_collide", env!("CARGO_MANIFEST_DIR")),
+            ("fluid/poiseuille_collide_streaming", env!("CARGO_MANIFEST_DIR")),
         );
 
         let mvp = idroid::matrix_helper::default_mvp(&app_view.sc_desc);
@@ -237,7 +231,7 @@ impl PoiseuilleFlow {
 
             fluid_buffer,
 
-            propagate_node,
+            boundary_node,
             collide_node,
 
             particle_node,
@@ -267,7 +261,7 @@ impl SurfaceView for PoiseuilleFlow {
             .app_view
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
-        self.propagate_node.compute(&mut self.app_view.device, &mut encoder);
+        self.boundary_node.compute(&mut self.app_view.device, &mut encoder);
         self.collide_node.compute(&mut self.app_view.device, &mut encoder);
         let frame = self
             .app_view
@@ -279,6 +273,6 @@ impl SurfaceView for PoiseuilleFlow {
         }
 
         self.app_view.queue.submit(&[encoder.finish()]);
-        println!("{:?}", (self.swap / 10) % 60);
+        // println!("{:?}", (self.swap / 10) % 60);
     }
 }

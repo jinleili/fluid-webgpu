@@ -7,16 +7,24 @@ layout(set = 0, binding = 2) buffer FluidBuffer1 { float streamingCells[]; };
 // rgb 表示对应 lattice 上的宏观速度密度
 layout(set = 0, binding = 3) buffer FluidBuffer2 { vec4 macro_info[]; };
 
-// 回弹方向对应的传播索引
-const int bounceBackDirection[9] = int[](0, 3, 4, 1, 2, 7, 8, 5, 6);
-
-const vec2 force = vec2(0.01, 0.0);
-
 // collide
 void updateCollide(ivec2 uv, int direction, float collide) {
   // 避免出现 NaN， inf, -inf, 将值限定在一个范围
-  collidingCells[indexOfLattice(uv) + direction] =
-      clamp(collide, -100.0, 100.0);
+  collidingCells[indexOfLattice(uv) + direction] = collide;
+}
+
+// 流出（迁移）：将当前格子的量迁移到周围格子
+void streaming_out(ivec2 uv, int direction, float collide) {
+  // https://pdfs.semanticscholar.org/e626/ca323a9a8a4ad82fb16ccbbbd93ba5aa98e0.pdf
+  // 沿着当前方向量流向旁边格子上的同一方向量
+  ivec2 new_uv = uv + ivec2(e(direction));
+  streamingCells[indexOfLattice(new_uv) + direction] = collide;
+}
+// 流入（迁移）：将周围格子的量迁移到当前格子
+void streaming_in(ivec2 uv, int direction) {
+  ivec2 new_uv = uv - ivec2(e(direction));
+  streamingCells[indexOfLattice(uv) + direction] =
+      collidingCells[indexOfLattice(new_uv) + direction];
 }
 
 // 更新流体宏观速度等信息
@@ -32,7 +40,7 @@ void main() {
   }
   // 用来判断当前是不是边界，障碍等
   int material = int(macro_info[indexOfFluid(uv)].w);
-  // 边界节点不需要计算碰撞
+  // 边界节点不需要计算碰撞及流出
   if (isBounceBackCell(material)) {
     return;
   }
@@ -45,7 +53,6 @@ void main() {
   for (int i = 0; i < 9; i++) {
     f_i[i] = streamingCells[indexOfLattice(uv) + i];
     rho += f_i[i];
-    // U = sum_fi*ei / rho
     velocity += e(i) * f_i[i];
   }
   velocity = velocity / rho;
@@ -60,18 +67,16 @@ void main() {
   }
   // 更新宏观速度，密度
   updateMacro(uv, velocity, rho);
-  // updateMacro2(uv);
 
   // Collision step: fout = fin - omega * (fin - feq)
   // 平衡方程最后一项：1.5 * 速度绝对值的平方
   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);
   for (int i = 0; i < 9; i++) {
     // 碰撞
-    // float collide = f_i[i] + omega * (equilibrium(velocity, rho, i, usqr) -
-    // f_i[i]);
     float collide =
         f_i[i] - omega * (f_i[i] - equilibrium(velocity, rho, i, usqr));
 
     updateCollide(uv, i, collide);
+    streaming_out(uv, i, collide);
   }
 }

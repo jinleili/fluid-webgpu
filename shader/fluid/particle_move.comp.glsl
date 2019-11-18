@@ -46,8 +46,7 @@ vec4 bilinear_interpolate(vec2 uv) {
   float fx = uv.x - float(minX);
   float fy = uv.y - float(minY);
   // 插值公式： f(i+u,j+v) = (1-u)(1-v)f(i,j) + (1-u)vf(i,j+1) +
-  // u(1-v)f(i+1,j)
-  // + uvf(i+1,j+1)
+  // u(1-v)f(i+1,j) + uvf(i+1,j+1)
   return srcData(valid_min_x, valid_min_y) * ((1.0 - fx) * (1.0 - fy)) +
          srcData(valid_min_x, min_plus1_y) * ((1.0 - fx) * fy) +
          srcData(min_plus1_x, valid_min_y) * (fx * (1.0 - fy)) +
@@ -57,8 +56,10 @@ vec4 bilinear_interpolate(vec2 uv) {
 int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 bool isBounceBackCell(int material) { return material == 2; }
 
-void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px, int py, vec4 f_info) {
-  PixelInfo info = PixelInfo(particle.fade, abs(f_info.x) + abs(f_info.y) * 100.0, f_info.z);
+void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px,
+                   int py, vec4 f_info) {
+  PixelInfo info =
+      PixelInfo(particle.fade, abs(f_info.x) + abs(f_info.y) * 100.0, f_info.z);
   for (int x = 0; x < point_size; x++) {
     for (int y = 0; y < point_size; y++) {
       ivec2 coords = ivec2(px + x, py + y);
@@ -122,7 +123,6 @@ void main() {
       // 更新指定范围内的所有像素的 alpha
       update_canvas(point_size, ivec2(canvas_size), particle, px, py, f_info);
     }
-      
   }
 
   pb[indexOfParticle(uv)] = particle;
