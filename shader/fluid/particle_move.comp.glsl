@@ -82,7 +82,7 @@ void main() {
   if (particle.life_time <= 0.1) {
     particle.fade = 0.0;
     particle.pos = particle.pos_initial;
-    particle.life_time = 160.0;
+    particle.life_time = 60.0;
   }
 
   if (particle.life_time > 0.1) {
@@ -96,11 +96,11 @@ void main() {
     vec4 f_info = bilinear_interpolate(ij);
     // vec4 f_info = srcData(int(floor(ij.x)), int(floor(ij.y)));
 
-    particle.pos.xy += (f_info.xy * pixel_distance * 15.0);
+    particle.pos.xy += (f_info.xy * pixel_distance * 20.0);
     // 淡入效果
     if (particle.fade < 1.0) {
-      if (particle.fade < 0.95) {
-        particle.fade += 0.05;
+      if (particle.fade < 0.9) {
+        particle.fade += 0.1;
       } else {
         particle.fade = 1.0;
       }
@@ -115,7 +115,7 @@ void main() {
       ivec2 pixel_coords =
           ivec2(round((particle.pos.x + 1.0) / pixel_distance.x),
                 round((particle.pos.y + 1.0) / pixel_distance.y));
-      int point_size = 2;
+      int point_size = 1;
       int px = pixel_coords.x - point_size / 2;
       int py = pixel_coords.y - point_size / 2;
 

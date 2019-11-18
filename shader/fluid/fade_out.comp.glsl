@@ -28,8 +28,8 @@ void main(void) {
   }
 
   float alpha = pixel_info[uv.x + size.x * uv.y].alpha;
-  if (alpha >= 0.05) {
-    alpha *= 0.85;
+  if (alpha >= 0.5) {
+    alpha *= 0.95;
   } else {
     alpha *= 0.5;
   }

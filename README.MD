@@ -1,2 +1,2 @@
 
-![poiseuille](screenshot/poiseuille.gif)
+![poiseuille](screenshot/Poiseuille_480p.gif)

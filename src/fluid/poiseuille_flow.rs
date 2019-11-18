@@ -115,7 +115,7 @@ impl PoiseuilleFlow {
     pub fn new(app_view: AppView) -> Self {
         let mut app_view = app_view;
 
-        let lattice_num = (128, 96);
+        let lattice_num = (100, 75);
         let threadgroup_count: (u32, u32) = ((lattice_num.0 + 15) / 16, (lattice_num.1 + 15) / 16);
 
         let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
@@ -279,5 +279,6 @@ impl SurfaceView for PoiseuilleFlow {
         }
 
         self.app_view.queue.submit(&[encoder.finish()]);
+        println!("{:?}", (self.swap / 10) % 60);
     }
 }

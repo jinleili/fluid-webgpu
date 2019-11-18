@@ -27,5 +27,7 @@ void main(void) {
   PixelInfo pixel =
       pixel_info[pixel_coord.x + pixel_coord.y * int(canvas_size.x)];
 
-  frag_color = vec4(min(max(pixel.speed, 0.8), 1.0), max(pixel.rho, 0.8), 0.8, pixel.alpha);
+  // frag_color = vec4(min(max(pixel.speed, 0.8), 1.0), max(pixel.rho, 0.8),
+  // 0.8, pixel.alpha);
+  frag_color = vec4(1.0, 1.0, 1.0, pixel.alpha);
 }

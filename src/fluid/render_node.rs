@@ -188,7 +188,7 @@ impl RenderNode {
                     resolve_target: None,
                     load_op: wgpu::LoadOp::Clear,
                     store_op: wgpu::StoreOp::Store,
-                    clear_color: idroid::utils::clear_color(),
+                    clear_color: wgpu::Color { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
                 }],
                 depth_stencil_attachment: Some(
                     idroid::depth_stencil::create_attachment_descriptor(&self.depth_texture_view),
@@ -229,7 +229,7 @@ fn init_particle_data(num: wgpu::Extent3d) -> Vec<Particle> {
             data.push(Particle {
                 pos: pos,
                 pos_initial: pos,
-                life_time: rng.gen_range(5, 160) as f32,
+                life_time: rng.gen_range(0, 60) as f32,
                 fade: 1.0,
             });
         }
