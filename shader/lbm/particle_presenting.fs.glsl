@@ -2,14 +2,15 @@
 layout(location = 0) in vec2 uv;
 layout(location = 0) out vec4 frag_color;
 
-layout(set = 0, binding = 1) uniform ParticleUniform {
-  // lattice 在正规化坐标空间的大小
+layout(set = 0, binding = 0) uniform ParticleUniform {
+  // size of the lattice in the normalized coordinate space
   vec2 lattice_size;
   vec2 lattice_num;
   vec2 particle_num;
-  // 画布像素尺寸
+  // canvas pixel size
   vec2 canvas_size;
-  // 正规化坐标空间里，一个像素对应的距离值'
+  // the value corresponding to one pixel in the normalized coordinate
+  // space
   vec2 pixel_distance;
 };
 

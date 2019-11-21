@@ -1,5 +1,4 @@
 use idroid::math::Size;
-use idroid::texture;
 use idroid::SurfaceView;
 
 use uni_view::{AppView, GPUContext};
@@ -12,8 +11,6 @@ use rand::Rng;
 
 pub struct VectorFieldView {
     app_view: AppView,
-    field_node: ComputeNode,
-    particle_count: u32,
     particle_node: ComputeNode,
     render_node: RenderNode,
 }
@@ -112,16 +109,14 @@ impl VectorFieldView {
 
         VectorFieldView {
             app_view,
-            particle_count: particle_num.count(),
             particle_node,
-            field_node,
             render_node,
         }
     }
 }
 
 impl SurfaceView for VectorFieldView {
-    fn scale(&mut self, scale: f32) {}
+    fn scale(&mut self, _scale: f32) {}
 
     fn touch_moved(&mut self, _position: idroid::math::Position) {}
 

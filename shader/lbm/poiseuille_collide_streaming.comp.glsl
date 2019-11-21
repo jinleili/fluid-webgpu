@@ -9,7 +9,6 @@ layout(set = 0, binding = 3) buffer FluidBuffer2 { vec4 macro_info[]; };
 
 // collide
 void updateCollide(ivec2 uv, int direction, float collide) {
-  // 避免出现 NaN， inf, -inf, 将值限定在一个范围
   collidingCells[indexOfLattice(uv) + direction] = collide;
 }
 
@@ -27,7 +26,7 @@ void streaming_in(ivec2 uv, int direction) {
       collidingCells[indexOfLattice(new_uv) + direction];
 }
 
-// 更新流体宏观速度等信息
+// update macroscope velocity, dencity...
 void updateMacro(ivec2 uv, vec2 velocity, float rho) {
   int destIndex = uv.x + uv.y * int(lattice_num.x);
   macro_info[destIndex].xyz = vec3(velocity, rho);
@@ -38,7 +37,6 @@ void main() {
   if (uv.x >= int(lattice_num).x || uv.y >= int(lattice_num.y)) {
     return;
   }
-  // 用来判断当前是不是边界，障碍等
   int material = int(macro_info[indexOfFluid(uv)].w);
   // 边界节点不需要计算碰撞及流出
   if (isBounceBackCell(material)) {

@@ -186,8 +186,6 @@ impl PoiseuilleFlow {
             ("lbm/poiseuille_collide_streaming", env!("CARGO_MANIFEST_DIR")),
         );
 
-        let mvp = idroid::matrix_helper::default_mvp(&app_view.sc_desc);
-
         // 目前的实现，粒子数需要与格子数一致
         let particle_node = RenderNode::new(
             &app_view.sc_desc,

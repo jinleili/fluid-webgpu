@@ -1,6 +1,5 @@
 use idroid::geometry::plane::Plane;
 use idroid::math::{Size, ViewSize};
-use idroid::vertex::{Pos, PosTex};
 
 use idroid::node::{BindingGroupSettingNode, ComputeNode, ImageViewNode};
 
@@ -8,8 +7,6 @@ pub struct RenderNode {
     view_size: ViewSize,
     particle_vertex_buf: wgpu::Buffer,
     particle_vertex_count: usize,
-    canvas_vertex_buf: wgpu::Buffer,
-    canvas_index_buf: wgpu::Buffer,
     setting_node: BindingGroupSettingNode,
     pipeline: wgpu::RenderPipeline,
     particle_canvas: wgpu::TextureView,
@@ -19,7 +16,7 @@ pub struct RenderNode {
 
 impl RenderNode {
     pub fn new(
-        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, queue: &mut wgpu::Queue,
+        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, _queue: &mut wgpu::Queue,
         uniform_buffer: &wgpu::Buffer, uniform_buffer_range: wgpu::BufferAddress,
         buffers: Vec<&wgpu::Buffer>, buffers_range: Vec<wgpu::BufferAddress>, particle_num: Size,
     ) -> Self {
@@ -89,14 +86,6 @@ impl RenderNode {
             alpha_to_coverage_enabled: false,
         });
 
-        let (vertex_data, index_data) = Plane::new(1, 1).generate_vertices();
-        let canvas_vertex_buf = device
-            .create_buffer_mapped(vertex_data.len(), wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(&vertex_data);
-        let canvas_index_buf = device
-            .create_buffer_mapped(index_data.len(), wgpu::BufferUsage::INDEX)
-            .fill_from_slice(&index_data);
-
         let mvp = idroid::utils::MVPUniform {
             mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc),
         };
@@ -124,8 +113,6 @@ impl RenderNode {
             view_size,
             particle_vertex_buf,
             particle_vertex_count,
-            canvas_vertex_buf,
-            canvas_index_buf,
             setting_node,
             pipeline,
             particle_canvas,

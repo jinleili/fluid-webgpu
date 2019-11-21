@@ -15,7 +15,6 @@ void main() {
   // Initial velocity with a slight perturbation
   vec2 velocity = vec2(0.0);
   float rho = 1.0;
-  // 更新流体宏观速度等信息
   int destIndex = indexOfFluid(uv);
   int material = int(macro_info[destIndex].w);
   if (isBounceBackCell(material)) {

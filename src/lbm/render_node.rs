@@ -1,4 +1,4 @@
-use super::{ParticleUniform, PixelInfo};
+use super::{PixelInfo};
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
@@ -13,8 +13,6 @@ use super::Particle;
 
 pub struct RenderNode {
     view_size: ViewSize,
-    particle_vertex_buf: wgpu::Buffer,
-    particle_count: usize,
     setting_node: BindingGroupSettingNode,
     pipeline: wgpu::RenderPipeline,
 
@@ -41,12 +39,6 @@ impl RenderNode {
         let canvas_buffer_size = (sc_desc.width * sc_desc.height * std::mem::size_of::<PixelInfo>() as u32) as wgpu::BufferAddress;
         let (canvas_buffer, _) =
             idroid::utils::create_storage_buffer(device, encoder, &canvas_data, canvas_buffer_size);
-        let vertex_data = self::particle_vertex_data(particle);
-        let particle_count = vertex_data.len();
-        let particle_vertex_size = std::mem::size_of::<i32>();
-        let particle_vertex_buf = device
-            .create_buffer_mapped(particle_count, wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(&vertex_data);
 
         let init_data = init_particle_data(particle);
         let particle_buffer_range =
@@ -90,7 +82,7 @@ impl RenderNode {
             vec![],
             vec![
                 wgpu::ShaderStage::VERTEX,
-                wgpu::ShaderStage::VERTEX | wgpu::ShaderStage::FRAGMENT,
+                wgpu::ShaderStage::FRAGMENT,
                 wgpu::ShaderStage::FRAGMENT,
             ],
         );
@@ -140,7 +132,6 @@ impl RenderNode {
             sample_mask: !0,
             alpha_to_coverage_enabled: false,
         });
-        println!("uniform_buffer_ranges[1]: {}", uniform_buffer_ranges[1]);
 
         let fade_node = ComputeNode::new(
             device,
@@ -156,8 +147,6 @@ impl RenderNode {
 
         RenderNode {
             view_size,
-            particle_vertex_buf,
-            particle_count,
             setting_node,
             pipeline,
             depth_texture_view,
@@ -201,17 +190,6 @@ impl RenderNode {
             rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
         }
     }
-}
-
-fn particle_vertex_data(num: wgpu::Extent3d) -> Vec<i32> {
-    let mut list = vec![];
-
-    for x in 0..num.width {
-        for y in 0..num.height {
-            list.push((y * num.width + x) as i32);
-        }
-    }
-    list
 }
 
 fn init_particle_data(num: wgpu::Extent3d) -> Vec<Particle> {

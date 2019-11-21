@@ -114,8 +114,8 @@ impl SurfaceView for Smoke2D {
 fn init_data(nx: u32, ny: u32) -> (Vec<[f32; 2]>, Vec<f32>) {
     let mut scalar_data: Vec<f32> = vec![];
     let mut vector_data: Vec<[f32; 2]> = vec![];
-    for j in 0..ny {
-        for i in 0..nx {
+    for _ in 0..ny {
+        for _ in 0..nx {
             vector_data.push([0.0, 0.0]);
             scalar_data.push(0.0);
         }

@@ -47,10 +47,8 @@ float w(int direction)
     return e_and_w[direction].z;
 }
 
-// 平衡分布函数
 float equilibrium(vec2 velocity, float rho, int direction, float usqr)
 {
-    // D2Q9包分布公式
     float e_dot_u = dot(e(direction), velocity);
 
     // pow(x, y) 要求 x 参数不能为负，e_dot_u
@@ -60,7 +58,6 @@ float equilibrium(vec2 velocity, float rho, int direction, float usqr)
     return rho * w(direction) * (1.0 + 3.0 * e_dot_u + 4.5 * (e_dot_u * e_dot_u) - usqr);
 }
 
-// 格子的索引
 int indexOfLattice(ivec2 uv)
 {
     return (uv.x + (uv.y * int(lattice_num.x))) * 9;
