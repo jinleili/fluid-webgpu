@@ -69,7 +69,7 @@ impl RenderNode {
             vec![&particle_buffer, field_buffer, &canvas_buffer],
             vec![particle_buffer_range, field_buffer_range, canvas_buffer_size],
             vec![],
-            ("fluid/particle_move", env!("CARGO_MANIFEST_DIR")),
+            ("lbm/particle_move", env!("CARGO_MANIFEST_DIR")),
         );
 
         let uniform_size = std::mem::size_of::<MVPUniform>() as wgpu::BufferAddress;
@@ -107,7 +107,7 @@ impl RenderNode {
 
         // Create the render pipeline
         let shader = idroid::shader::Shader::new(
-            "fluid/particle_presenting",
+            "lbm/particle_presenting",
             device,
             env!("CARGO_MANIFEST_DIR"),
         );
@@ -150,7 +150,7 @@ impl RenderNode {
             vec![&canvas_buffer],
             vec![canvas_buffer_size],
             vec![],
-            ("fluid/fade_out", env!("CARGO_MANIFEST_DIR")),
+            ("lbm/fade_out", env!("CARGO_MANIFEST_DIR")),
         );
         let depth_texture_view = idroid::depth_stencil::create_depth_texture_view(sc_desc, device);
 
@@ -188,7 +188,7 @@ impl RenderNode {
                     resolve_target: None,
                     load_op: wgpu::LoadOp::Clear,
                     store_op: wgpu::StoreOp::Store,
-                    clear_color: wgpu::Color { r: 0.1, g: 0.1, b: 0.1, a: 1.0 },
+                    clear_color: wgpu::Color { r: 0.1, g: 0.15, b: 0.17, a: 1.0 },
                 }],
                 depth_stencil_attachment: Some(
                     idroid::depth_stencil::create_attachment_descriptor(&self.depth_texture_view),

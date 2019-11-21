@@ -116,7 +116,7 @@ void main() {
       ivec2 pixel_coords =
           ivec2(round((particle.pos.x + 1.0) / pixel_distance.x),
                 round((particle.pos.y + 1.0) / pixel_distance.y));
-      int point_size = 1;
+      int point_size = 2;
       int px = pixel_coords.x - point_size / 2;
       int py = pixel_coords.y - point_size / 2;
 

@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2156B9B2B179DE73667FB5C2 /* Pods_demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 63AB5C81079BA9C8BE1730CB /* Pods_demo.framework */; };
 		52C4A18C237A65030050FB29 /* libfluid_webgpu.a in Frameworks */ = {isa = PBXBuildFile; fileRef = B87C238023350B7800A34C36 /* libfluid_webgpu.a */; };
+		7C6EE8FD99BE0088F6B02A70 /* Pods_fluid_demo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A1C3DAB65B6F41C49F5839DD /* Pods_fluid_demo.framework */; };
 		B82B5E312270567D007BD9FA /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82B5E302270567D007BD9FA /* AppDelegate.swift */; };
 		B82B5E332270567D007BD9FA /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B82B5E322270567D007BD9FA /* ViewController.swift */; };
 		B82B5E362270567D007BD9FA /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B82B5E342270567D007BD9FA /* Main.storyboard */; };
@@ -23,8 +23,9 @@
 
 /* Begin PBXFileReference section */
 		099392C1873B4D95B60FDB59 /* Pods-demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo.debug.xcconfig"; path = "Target Support Files/Pods-demo/Pods-demo.debug.xcconfig"; sourceTree = "<group>"; };
-		63AB5C81079BA9C8BE1730CB /* Pods_demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		B82B5E2D2270567D007BD9FA /* demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		6BD0A37D5766824C8C7183A6 /* Pods-fluid_demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fluid_demo.release.xcconfig"; path = "Target Support Files/Pods-fluid_demo/Pods-fluid_demo.release.xcconfig"; sourceTree = "<group>"; };
+		A1C3DAB65B6F41C49F5839DD /* Pods_fluid_demo.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fluid_demo.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		B82B5E2D2270567D007BD9FA /* fluid_demo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fluid_demo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B82B5E302270567D007BD9FA /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B82B5E322270567D007BD9FA /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
 		B82B5E352270567D007BD9FA /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -41,6 +42,7 @@
 		B87C238023350B7800A34C36 /* libfluid_webgpu.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libfluid_webgpu.a; path = "../target/aarch64-apple-ios/debug/libfluid_webgpu.a"; sourceTree = "<group>"; };
 		B8B8DCD723210B8A00F93474 /* shader-spirv */ = {isa = PBXFileReference; lastKnownFileType = folder; name = "shader-spirv"; path = "../../shader-spirv"; sourceTree = "<group>"; };
 		C71E08256A07426AE65D4EB0 /* Pods-demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo.release.xcconfig"; path = "Target Support Files/Pods-demo/Pods-demo.release.xcconfig"; sourceTree = "<group>"; };
+		DC10C2AF37AE87890D301268 /* Pods-fluid_demo.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fluid_demo.debug.xcconfig"; path = "Target Support Files/Pods-fluid_demo/Pods-fluid_demo.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -49,8 +51,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				B839DE9F229D249000809873 /* libresolv.tbd in Frameworks */,
-				2156B9B2B179DE73667FB5C2 /* Pods_demo.framework in Frameworks */,
 				52C4A18C237A65030050FB29 /* libfluid_webgpu.a in Frameworks */,
+				7C6EE8FD99BE0088F6B02A70 /* Pods_fluid_demo.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -70,7 +72,7 @@
 		B82B5E2E2270567D007BD9FA /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B82B5E2D2270567D007BD9FA /* demo.app */,
+				B82B5E2D2270567D007BD9FA /* fluid_demo.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -100,7 +102,7 @@
 			children = (
 				B87C238023350B7800A34C36 /* libfluid_webgpu.a */,
 				B839DE9E229D248F00809873 /* libresolv.tbd */,
-				63AB5C81079BA9C8BE1730CB /* Pods_demo.framework */,
+				A1C3DAB65B6F41C49F5839DD /* Pods_fluid_demo.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -110,6 +112,8 @@
 			children = (
 				099392C1873B4D95B60FDB59 /* Pods-demo.debug.xcconfig */,
 				C71E08256A07426AE65D4EB0 /* Pods-demo.release.xcconfig */,
+				DC10C2AF37AE87890D301268 /* Pods-fluid_demo.debug.xcconfig */,
+				6BD0A37D5766824C8C7183A6 /* Pods-fluid_demo.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -117,9 +121,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B82B5E2C2270567D007BD9FA /* demo */ = {
+		B82B5E2C2270567D007BD9FA /* fluid_demo */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B82B5E3F2270567E007BD9FA /* Build configuration list for PBXNativeTarget "demo" */;
+			buildConfigurationList = B82B5E3F2270567E007BD9FA /* Build configuration list for PBXNativeTarget "fluid_demo" */;
 			buildPhases = (
 				BC4D635F94CA67ACC0149CB7 /* [CP] Check Pods Manifest.lock */,
 				B82B5E292270567D007BD9FA /* Sources */,
@@ -131,9 +135,9 @@
 			);
 			dependencies = (
 			);
-			name = demo;
+			name = fluid_demo;
 			productName = brush;
-			productReference = B82B5E2D2270567D007BD9FA /* demo.app */;
+			productReference = B82B5E2D2270567D007BD9FA /* fluid_demo.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -152,7 +156,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B82B5E282270567C007BD9FA /* Build configuration list for PBXProject "demo" */;
+			buildConfigurationList = B82B5E282270567C007BD9FA /* Build configuration list for PBXProject "fluid_demo" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -165,7 +169,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B82B5E2C2270567D007BD9FA /* demo */,
+				B82B5E2C2270567D007BD9FA /* fluid_demo */,
 			);
 		};
 /* End PBXProject section */
@@ -201,7 +205,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-demo-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-fluid_demo-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -214,15 +218,15 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-demo/Pods-demo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-fluid_demo/Pods-fluid_demo-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-demo/Pods-demo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-fluid_demo/Pods-fluid_demo-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-demo/Pods-demo-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fluid_demo/Pods-fluid_demo-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -379,7 +383,7 @@
 		};
 		B82B5E402270567E007BD9FA /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 099392C1873B4D95B60FDB59 /* Pods-demo.debug.xcconfig */;
+			baseConfigurationReference = DC10C2AF37AE87890D301268 /* Pods-fluid_demo.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -406,7 +410,7 @@
 		};
 		B82B5E412270567E007BD9FA /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C71E08256A07426AE65D4EB0 /* Pods-demo.release.xcconfig */;
+			baseConfigurationReference = 6BD0A37D5766824C8C7183A6 /* Pods-fluid_demo.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
@@ -433,7 +437,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B82B5E282270567C007BD9FA /* Build configuration list for PBXProject "demo" */ = {
+		B82B5E282270567C007BD9FA /* Build configuration list for PBXProject "fluid_demo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B82B5E3D2270567E007BD9FA /* Debug */,
@@ -442,7 +446,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B82B5E3F2270567E007BD9FA /* Build configuration list for PBXNativeTarget "demo" */ = {
+		B82B5E3F2270567E007BD9FA /* Build configuration list for PBXNativeTarget "fluid_demo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B82B5E402270567E007BD9FA /* Debug */,

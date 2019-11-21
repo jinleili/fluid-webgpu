@@ -1,8 +1,8 @@
 platform :ios, "10.0"
 use_frameworks!
 
-target "demo" do
-project  "demo.xcodeproj"
+target "fluid_demo" do
+project  "fluid_demo.xcodeproj"
 # 官方正在开发 5.0，目前是 beta7 (20190731)
 #pod 'Alamofire'
 

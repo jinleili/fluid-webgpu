@@ -2,13 +2,14 @@ extern crate libc;
 pub use idroid::utils::{depth_stencil, matrix_helper};
 pub use uni_view::*;
 
-mod filter;
-
 mod particle;
 pub use particle::VectorFieldView;
 
-mod fluid;
-pub use fluid::PoiseuilleFlow;
+mod lbm;
+pub use lbm::PoiseuilleFlow;
+
+mod nse;
+pub use nse::Smoke2D;
 
 #[derive(Copy, Clone)]
 #[repr(C)]

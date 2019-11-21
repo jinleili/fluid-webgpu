@@ -1,6 +1,6 @@
 layout(local_size_x = 16, local_size_y = 16) in;
 
-#include "fluid/fluid_layout_and_fn.glsl"
+#include "lbm/fluid_layout_and_fn.glsl"
 
 layout(set = 0, binding = 1) buffer FluidBuffer0 { float collidingCells[]; };
 layout(set = 0, binding = 2) buffer FluidBuffer1 { float streamingCells[]; };

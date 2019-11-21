@@ -8,17 +8,10 @@ use uni_view::{AppView, GPUContext};
 // 泊萧叶流
 pub struct PoiseuilleFlow {
     app_view: AppView,
-
     lattice: Extent3d,
-    particle_num: Extent3d,
-
-    uniform_buf: wgpu::Buffer,
-    uniform_buf2: wgpu::Buffer,
-    fluid_buffer: wgpu::Buffer,
 
     boundary_node: ComputeNode,
     collide_node: ComputeNode,
-
     particle_node: RenderNode,
 
     swap: i32,
@@ -114,7 +107,7 @@ impl PoiseuilleFlow {
 
         let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
         let particle_num =
-            Extent3d { width: lattice_num.0 * 3, height: lattice_num.1 * 3, depth: 1 };
+            Extent3d { width: lattice_num.0 * 1, height: lattice_num.1 * 1, depth: 1 };
 
         let swap = 0_i32;
 
@@ -180,7 +173,7 @@ impl PoiseuilleFlow {
             vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
             vec![buffer_range, buffer_range, fluid_buf_range],
             vec![],
-            ("fluid/poiseuille_boundary", env!("CARGO_MANIFEST_DIR")),
+            ("lbm/poiseuille_boundary", env!("CARGO_MANIFEST_DIR")),
         );
         let collide_node = ComputeNode::new(
             &mut app_view.device,
@@ -190,7 +183,7 @@ impl PoiseuilleFlow {
             vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
             vec![buffer_range, buffer_range, fluid_buf_range],
             vec![],
-            ("fluid/poiseuille_collide_streaming", env!("CARGO_MANIFEST_DIR")),
+            ("lbm/poiseuille_collide_streaming", env!("CARGO_MANIFEST_DIR")),
         );
 
         let mvp = idroid::matrix_helper::default_mvp(&app_view.sc_desc);
@@ -215,7 +208,7 @@ impl PoiseuilleFlow {
             vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
             vec![buffer_range, buffer_range, fluid_buf_range],
             vec![],
-            ("fluid/poiseuille_init", env!("CARGO_MANIFEST_DIR")),
+            ("lbm/poiseuille_init", env!("CARGO_MANIFEST_DIR")),
         );
         init_node.compute(&mut app_view.device, &mut encoder);
 
@@ -224,25 +217,16 @@ impl PoiseuilleFlow {
         PoiseuilleFlow {
             app_view,
             lattice,
-            particle_num,
-
-            uniform_buf,
-            uniform_buf2,
-
-            fluid_buffer,
-
             boundary_node,
             collide_node,
-
             particle_node,
-
             swap,
         }
     }
 }
 
 impl SurfaceView for PoiseuilleFlow {
-    fn scale(&mut self, scale: f32) {}
+    fn scale(&mut self, _scale: f32) {}
 
     fn touch_moved(&mut self, _position: idroid::math::Position) {}
 
@@ -263,6 +247,7 @@ impl SurfaceView for PoiseuilleFlow {
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
         self.boundary_node.compute(&mut self.app_view.device, &mut encoder);
         self.collide_node.compute(&mut self.app_view.device, &mut encoder);
+
         let frame = self
             .app_view
             .swap_chain
