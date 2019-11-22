@@ -114,9 +114,9 @@ impl PoiseuilleFlow {
         let mut encoder =
             app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
-        // 格子 buffer 所占字节数
+        // lattice buffer bytes
         let buffer_range = (lattice.width * lattice.height * 9 * 4) as wgpu::BufferAddress;
-        // 输出的流体参数 buffer 的字节数
+        // macro fluid buffer bytes
         let fluid_buf_range = (lattice.width * lattice.height * 4 * 4) as wgpu::BufferAddress;
 
         let (lattice_data, fluid_data) = init_data(lattice.width, lattice.height);
@@ -186,7 +186,6 @@ impl PoiseuilleFlow {
             ("lbm/poiseuille_collide_streaming", env!("CARGO_MANIFEST_DIR")),
         );
 
-        // 目前的实现，粒子数需要与格子数一致
         let particle_node = RenderNode::new(
             &app_view.sc_desc,
             &mut app_view.device,
@@ -212,14 +211,7 @@ impl PoiseuilleFlow {
 
         app_view.queue.submit(&[encoder.finish()]);
 
-        PoiseuilleFlow {
-            app_view,
-            lattice,
-            boundary_node,
-            collide_node,
-            particle_node,
-            swap,
-        }
+        PoiseuilleFlow { app_view, lattice, boundary_node, collide_node, particle_node, swap }
     }
 }
 
@@ -234,10 +226,9 @@ impl SurfaceView for PoiseuilleFlow {
 
     fn enter_frame(&mut self) {
         self.swap += 1;
-        if self.swap % 10 != 0 {
-            return;
-        }
-        // println!("swap: {}", self.swap);
+        // if self.swap % 10 != 0 {
+        //     return;
+        // }
 
         let mut encoder = self
             .app_view

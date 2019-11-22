@@ -7,10 +7,10 @@ vec2 srcData(int u, int v) { return pre_velocity[v * lattice_num.x + u]; }
 vec2 bilinear_interpolate_2f(vec2 uv, uvec2 max_uv) {
   int minX = int(floor(uv.x));
   int minY = int(floor(uv.y));
-  int valid_min_x = max(0, minX);
-  int valid_min_y = max(0, minY);
-  int min_plus1_x = min(minX + 1, int(max_uv.x));
-  int min_plus1_y = min(minY + 1, int(max_uv.y));
+  int valid_min_x = clamp(0, minX, int(max_uv.x - 1));
+  int valid_min_y = clamp(0, minY, int(max_uv.x - 1));
+  int min_plus1_x = clamp(0, minX + 1, int(max_uv.x));
+  int min_plus1_y = clamp(0, minY + 1, int(max_uv.y));
 
   float fx = uv.x - float(minX);
   float fy = uv.y - float(minY);

@@ -1,4 +1,4 @@
-use super::{PixelInfo};
+use super::PixelInfo;
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
@@ -36,7 +36,9 @@ impl RenderNode {
         let view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
         let canvas_data = init_canvas_data(sc_desc);
-        let canvas_buffer_size = (sc_desc.width * sc_desc.height * std::mem::size_of::<PixelInfo>() as u32) as wgpu::BufferAddress;
+        let canvas_buffer_size =
+            (sc_desc.width * sc_desc.height * std::mem::size_of::<PixelInfo>() as u32)
+                as wgpu::BufferAddress;
         let (canvas_buffer, _) =
             idroid::utils::create_storage_buffer(device, encoder, &canvas_data, canvas_buffer_size);
 
@@ -163,7 +165,7 @@ impl RenderNode {
         encoder: &mut wgpu::CommandEncoder,
     ) {
         {
-            // 先执行淡出
+            // execute fade out
             self.fade_node.compute(device, encoder);
         }
         {
@@ -217,10 +219,11 @@ fn init_particle_data(num: wgpu::Extent3d) -> Vec<Particle> {
 }
 
 fn init_canvas_data(sc_desc: &wgpu::SwapChainDescriptor) -> Vec<PixelInfo> {
+    println!("sc_desc info: {}, {}", sc_desc.width, sc_desc.height);
     let mut data: Vec<PixelInfo> = vec![];
     for _ in 0..sc_desc.width {
         for _ in 0..sc_desc.height {
-            data.push(PixelInfo{ alpha: 0.0, speed: 0.0, rho: 0.0});
+            data.push(PixelInfo { alpha: 0.0, speed: 0.0, rho: 0.0 });
         }
     }
     data
