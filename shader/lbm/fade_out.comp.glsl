@@ -12,6 +12,13 @@ layout(set = 0, binding = 0) uniform ParticleUniform {
   vec2 pixel_distance;
 };
 
+layout(set = 0, binding = 1) uniform AnimateUniform {
+  //
+  float life_time;
+  float fade_out_factor;
+  float speed_factor;
+};
+
 struct PixelInfo {
   float alpha;
   // absolute velocity
@@ -19,7 +26,7 @@ struct PixelInfo {
   // density
   float rho;
 };
-layout(set = 0, binding = 1) buffer Canvas { PixelInfo pixel_info[]; };
+layout(set = 0, binding = 2) buffer Canvas { PixelInfo pixel_info[]; };
 
 void main(void) {
   ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
@@ -29,8 +36,8 @@ void main(void) {
   }
 
   float alpha = pixel_info[uv.x + size.x * uv.y].alpha;
-  if (alpha >= 0.5) {
-    alpha *= 0.95;
+  if (alpha >= 0.2) {
+    alpha *= fade_out_factor;
   } else {
     alpha *= 0.5;
   }

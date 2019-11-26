@@ -39,7 +39,7 @@ void main() {
   }
   int material = int(macro_info[indexOfFluid(uv)].w);
   // at boundary lattice, not need calculate collide and stream
-  if (isBounceBackCell(material)) {
+  if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;
   }
 
@@ -59,7 +59,7 @@ void main() {
     rho = 1.0;
   } else if (isInflowCell(material)) {
     // inflow add extra force
-    velocity = vec2(0.1, 0.05);
+    velocity = vec2(0.1, 0.00);
   }
   update_macro(uv, velocity, rho);
 
@@ -67,7 +67,7 @@ void main() {
   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);
   for (int i = 0; i < 9; i++) {
     float collide =
-        f_i[i] - omega * (f_i[i] - equilibrium(velocity, rho, i, usqr));
+        f_i[i] - omega() * (f_i[i] - equilibrium(velocity, rho, i, usqr));
 
     update_collide(uv, i, collide);
     streaming_out(uv, i, collide);

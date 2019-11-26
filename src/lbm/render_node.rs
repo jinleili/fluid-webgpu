@@ -1,4 +1,5 @@
-use super::PixelInfo;
+use super::init_data::{init_canvas_data, init_particle_data};
+use super::{AnimateUniform, FlowType, ParticleUniform, PixelInfo};
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
@@ -6,7 +7,6 @@ use idroid::node::ComputeNode;
 use idroid::utils::MVPUniform;
 use idroid::vertex::{Pos, PosTex};
 
-use rand::Rng;
 use std::vec::Vec;
 
 use super::Particle;
@@ -29,9 +29,9 @@ pub struct RenderNode {
 impl RenderNode {
     pub fn new(
         sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
-        encoder: &mut wgpu::CommandEncoder, uniform_buffers: Vec<&wgpu::Buffer>,
-        uniform_buffer_ranges: Vec<wgpu::BufferAddress>, field_buffer: &wgpu::Buffer,
-        field_buffer_range: wgpu::BufferAddress, particle: wgpu::Extent3d,
+        encoder: &mut wgpu::CommandEncoder, field_buffer: &wgpu::Buffer,
+        field_buffer_range: wgpu::BufferAddress, flow_type: FlowType, lattice: wgpu::Extent3d,
+        particle: wgpu::Extent3d,
     ) -> Self {
         let view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
@@ -42,7 +42,33 @@ impl RenderNode {
         let (canvas_buffer, _) =
             idroid::utils::create_storage_buffer(device, encoder, &canvas_data, canvas_buffer_size);
 
-        let init_data = init_particle_data(particle);
+        let (life_time, fade_out_factor, speed_factor) = match flow_type {
+            FlowType::poiseuille => (60, 0.95, 20.0),
+            FlowType::lid_driven_cavity => (600, 0.99, 20.0),
+        };
+        let uniform_size = std::mem::size_of::<ParticleUniform>() as wgpu::BufferAddress;
+        let uniform_buf = idroid::utils::create_uniform_buffer2(
+            device,
+            encoder,
+            super::ParticleUniform {
+                lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
+                lattice_num: [lattice.width as f32, lattice.height as f32],
+                particle_num: [particle.width as f32, particle.height as f32],
+                canvas_size: [sc_desc.width as f32, sc_desc.height as f32],
+                pixel_distance: [2.0 / sc_desc.width as f32, 2.0 / sc_desc.height as f32],
+            },
+            uniform_size,
+        );
+
+        let uniform1_size = std::mem::size_of::<AnimateUniform>() as wgpu::BufferAddress;
+        let uniform1_buf = idroid::utils::create_uniform_buffer2(
+            device,
+            encoder,
+            AnimateUniform { life_time: life_time as f32, fade_out_factor, speed_factor },
+            uniform1_size,
+        );
+
+        let init_data = init_particle_data(particle, life_time);
         let particle_buffer_range =
             (particle.width * particle.height * std::mem::size_of::<Particle>() as u32)
                 as wgpu::BufferAddress;
@@ -58,26 +84,26 @@ impl RenderNode {
         let particle_node = ComputeNode::new(
             device,
             threadgroup_count,
-            uniform_buffers[1],
-            uniform_buffer_ranges[1],
+            vec![&uniform_buf, &uniform1_buf],
+            vec![uniform_size, uniform1_size],
             vec![&particle_buffer, field_buffer, &canvas_buffer],
             vec![particle_buffer_range, field_buffer_range, canvas_buffer_size],
             vec![],
             ("lbm/particle_move", env!("CARGO_MANIFEST_DIR")),
         );
 
-        let uniform_size = std::mem::size_of::<MVPUniform>() as wgpu::BufferAddress;
-        let uniform_buf = idroid::utils::create_uniform_buffer2(
+        let uniform0_size = std::mem::size_of::<MVPUniform>() as wgpu::BufferAddress;
+        let uniform0_buf = idroid::utils::create_uniform_buffer2(
             device,
             encoder,
             MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
-            uniform_size,
+            uniform0_size,
         );
 
         let setting_node = BindingGroupSettingNode::new(
             device,
-            vec![&uniform_buf, uniform_buffers[1]],
-            vec![uniform_size, uniform_buffer_ranges[1]],
+            vec![&uniform0_buf, &uniform_buf],
+            vec![uniform0_size, uniform_size],
             vec![&canvas_buffer],
             vec![canvas_buffer_size],
             vec![],
@@ -138,8 +164,8 @@ impl RenderNode {
         let fade_node = ComputeNode::new(
             device,
             ((sc_desc.width + 15) / 16, (sc_desc.height + 15) / 16),
-            uniform_buffers[1],
-            uniform_buffer_ranges[1],
+            vec![&uniform_buf, &uniform1_buf],
+            vec![uniform_size, uniform1_size],
             vec![&canvas_buffer],
             vec![canvas_buffer_size],
             vec![],
@@ -192,39 +218,4 @@ impl RenderNode {
             rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
         }
     }
-}
-
-fn init_particle_data(num: wgpu::Extent3d) -> Vec<Particle> {
-    let mut data: Vec<Particle> = vec![];
-    let mut rng = rand::thread_rng();
-    let step_x = 2.0 / (num.width - 1) as f32;
-    let step_y = 2.0 / (num.height - 1) as f32;
-    for x in 0..num.width {
-        let pixel_x = -1.0 + step_x * x as f32;
-        for y in 0..num.height {
-            let pos = [
-                pixel_x + rng.gen_range(-step_x, step_x),
-                -1.0 + step_y * y as f32 + rng.gen_range(-step_y, step_y),
-            ];
-            data.push(Particle {
-                pos: pos,
-                pos_initial: pos,
-                life_time: rng.gen_range(0, 60) as f32,
-                fade: 1.0,
-            });
-        }
-    }
-
-    data
-}
-
-fn init_canvas_data(sc_desc: &wgpu::SwapChainDescriptor) -> Vec<PixelInfo> {
-    println!("sc_desc info: {}, {}", sc_desc.width, sc_desc.height);
-    let mut data: Vec<PixelInfo> = vec![];
-    for _ in 0..sc_desc.width {
-        for _ in 0..sc_desc.height {
-            data.push(PixelInfo { alpha: 0.0, speed: 0.0, rho: 0.0 });
-        }
-    }
-    data
 }

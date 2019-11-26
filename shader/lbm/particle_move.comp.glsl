@@ -12,6 +12,13 @@ layout(set = 0, binding = 0) uniform ParticleUniform {
   vec2 pixel_distance;
 };
 
+layout(set = 0, binding = 1) uniform AnimateUniform {
+  //
+  float life_time;
+  float fade_out_factor;
+  float speed_factor;
+};
+
 struct Particle {
   vec2 pos;
   // initial position, use to reset particle position
@@ -21,8 +28,8 @@ struct Particle {
   float fade;
 };
 
-layout(set = 0, binding = 1) buffer ParticleBuffer { Particle pb[]; };
-layout(set = 0, binding = 2) buffer FieldBuffer { vec4 fb[]; };
+layout(set = 0, binding = 2) buffer ParticleBuffer { Particle pb[]; };
+layout(set = 0, binding = 3) buffer FieldBuffer { vec4 fb[]; };
 
 struct PixelInfo {
   float alpha;
@@ -31,28 +38,16 @@ struct PixelInfo {
   // density
   float rho;
 };
-layout(set = 0, binding = 3) buffer Canvas { PixelInfo pixel_info[]; };
+layout(set = 0, binding = 4) buffer Canvas { PixelInfo pixel_info[]; };
 
-vec4 srcData(int u, int v) {
+vec4 src_f4(int u, int v) {
   u = clamp(0, u, int(lattice_num.x - 1.0));
   v = clamp(0, v, int(lattice_num.x - 1.0));
 
   return fb[v * int(lattice_num.x) + u];
 }
 
-vec4 bilinear_interpolate(vec2 uv) {
-  int minX = int(floor(uv.x));
-  int minY = int(floor(uv.y));
-
-  float fx = uv.x - float(minX);
-  float fy = uv.y - float(minY);
-  // formula： f(i+u,j+v) = (1-u)(1-v)f(i,j) + (1-u)vf(i,j+1) +
-  // u(1-v)f(i+1,j) + uvf(i+1,j+1)
-  return srcData(minX, minY) * ((1.0 - fx) * (1.0 - fy)) +
-         srcData(minX, minY + 1) * ((1.0 - fx) * fy) +
-         srcData(minX + 1, minY) * (fx * (1.0 - fy)) +
-         srcData(minX + 1, minY + 1) * (fx * fy);
-}
+#include "func/bilinear_interpolate_f4.glsl"
 
 int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 bool isBounceBackCell(int material) { return material == 2; }
@@ -82,7 +77,7 @@ void main() {
   if (particle.life_time <= 0.1) {
     particle.fade = 0.0;
     particle.pos = particle.pos_initial;
-    particle.life_time = 60.0;
+    particle.life_time = life_time;
   }
 
   if (particle.life_time > 0.1) {
@@ -93,9 +88,10 @@ void main() {
     vec2 new_pos = particle.pos.xy + vec2(1.0, 1.0);
     vec2 ij = vec2((new_pos.x / lattice_size.x) - 0.5,
                    (new_pos.y / lattice_size.y) - 0.5);
-    vec4 f_info = bilinear_interpolate(ij);
-    // vec4 f_info = srcData(int(floor(ij.x)), int(floor(ij.y)));
-    particle.pos.xy += (f_info.xy * pixel_distance * 20.0);
+    vec4 f_info = bilinear_interpolate_f4(ij);
+
+    // vec4 f_info = src_f4(int(floor(ij.x)), int(floor(ij.y)));
+    particle.pos.xy += (f_info.xy * pixel_distance * speed_factor);
     // fade in effect
     if (particle.fade < 1.0) {
       if (particle.fade < 0.9) {
@@ -108,7 +104,7 @@ void main() {
     // calculate if particle's new position is inside obstacle or boundary
     // lattice
     ivec2 lattice = ivec2((particle.pos.xy + vec2(1.0, 1.0)) / lattice_size);
-    int material = int(srcData(lattice.x, lattice.y).w);
+    int material = int(src_f4(lattice.x, lattice.y).w);
     if (isBounceBackCell(material) == false) {
       // update pixel's alpha value：
       //

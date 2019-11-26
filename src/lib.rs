@@ -2,11 +2,7 @@ extern crate libc;
 pub use idroid::utils::{depth_stencil, matrix_helper};
 pub use uni_view::*;
 
-mod particle;
-pub use particle::VectorFieldView;
-
-mod lbm;
-pub use lbm::PoiseuilleFlow;
+pub mod lbm;
 
 mod nse;
 pub use nse::Smoke2D;
@@ -44,16 +40,16 @@ pub struct FieldUniform {
 
 #[cfg(target_os = "ios")]
 #[no_mangle]
-pub extern "C" fn create_particle_view(view: uni_view::AppViewObj) -> *mut libc::c_void {
+pub extern "C" fn create_poiseuille_view(view: uni_view::AppViewObj) -> *mut libc::c_void {
     let rust_view = uni_view::AppView::new(view);
-    let obj = VectorFieldView::new(rust_view);
+    let obj = lbm::D2Q9Flow::new(rust_view, lbm::FlowType::poiseuille);
     idroid::box_obj(obj)
 }
 
 #[cfg(target_os = "ios")]
 #[no_mangle]
-pub extern "C" fn create_poiseuille_view(view: uni_view::AppViewObj) -> *mut libc::c_void {
+pub extern "C" fn create_lip_driven_cavity(view: uni_view::AppViewObj) -> *mut libc::c_void {
     let rust_view = uni_view::AppView::new(view);
-    let obj = PoiseuilleFlow::new(rust_view);
+    let obj = lbm::D2Q9Flow::new(rust_view, lbm::FlowType::lid_driven_cavity);
     idroid::box_obj(obj)
 }

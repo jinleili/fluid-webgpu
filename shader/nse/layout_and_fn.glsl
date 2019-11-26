@@ -16,4 +16,13 @@ layout(set = 0, binding = 3) buffer NSEScalar0 { float divergence[]; };
 // Pressure field from previous iteration, p^(k-1)
 layout(set = 0, binding = 4) buffer NSEScalar1 { float pressure[]; };
 
-uint indexOfLattice(uvec2 uv) { return uv.x + uv.y * lattice_num.x; }
+uint indexOfLattice(uvec2 uv) {
+  return min(uv.x, lattice_num.x - 1) +
+         min(uv.y, lattice_num.y - 1) * lattice_num.x;
+}
+
+uint indexOfLattice(int u, int v) {
+  uint uu = clamp(0, u, lattice_num.x - 1);
+  uint uv = clamp(0, v, lattice_num.y - 1);
+  return uu + uv * lattice_num.x;
+}

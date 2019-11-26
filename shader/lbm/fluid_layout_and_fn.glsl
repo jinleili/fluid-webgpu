@@ -1,8 +1,11 @@
 
-layout(set = 0, binding = 0) uniform FluidUniform {
+layout(set = 0, binding = 0) uniform D2Q9Uniform {
   // e: D2Q9 model direction coordinate
   // w: direction's weight
   vec4 e_and_w[9];
+};
+
+layout(set = 0, binding = 1) uniform FluidUniform {
   // size of the lattice in the normalized coordinate space
   vec2 lattice_size;
   vec2 lattice_num;
@@ -15,21 +18,14 @@ layout(set = 0, binding = 0) uniform FluidUniform {
   // buffer(0) with offset(0) and length(172) has space for 172 bytes, but
   // argument has a length(176).'
   vec2 pixel_distance;
+  // τ represents the viscosity of the fluid, given by τ = 0.5 * (1.0 + 6niu )
+  vec2 tau_and_omega;
 };
 
-struct Particle {
-  vec2 pos;
-  // initial position, use to reset particle position
-  vec2 pos_initial;
-  float life_time;
-  // alpha value:[1.0, 0.0]
-  float fade;
-};
+layout(set = 0, binding = 2) buffer FluidBuffer0 { float collidingCells[]; };
+layout(set = 0, binding = 3) buffer FluidBuffer1 { float streamingCells[]; };
 
-layout(set = 0, binding = 1) buffer FluidBuffer0 { float collidingCells[]; };
-layout(set = 0, binding = 2) buffer FluidBuffer1 { float streamingCells[]; };
-
-layout(set = 0, binding = 3) buffer FluidBuffer2 {
+layout(set = 0, binding = 4) buffer FluidBuffer2 {
   // macro_info.rg is macroscope velocity
   // macro_info.b is macroscope dencity
   vec4 macro_info[];
@@ -37,15 +33,15 @@ layout(set = 0, binding = 3) buffer FluidBuffer2 {
 
 // sound speed
 const float Cs2 = 1.0 / 3.0;
-// τ represents the viscosity of the fluid, given by τ = 0.5 * (1.0 + 6niu )
-const float tau = 0.8;
-const float omega = 1.0 / tau;
 
 // direction's coordinate
 vec2 e(int direction) { return e_and_w[direction].xy; }
-
 // direction's weight
 float w(int direction) { return e_and_w[direction].z; }
+
+float tau() { return tau_and_omega.x; }
+
+float omega() { return tau_and_omega.y; }
 
 float equilibrium(vec2 velocity, float rho, int direction, float usqr) {
   float e_dot_u = dot(e(direction), velocity);
@@ -63,6 +59,7 @@ int indexOfFluid(ivec2 uv) { return uv.x + (uv.y * int(lattice_num.x)); }
 int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 
 bool isBounceBackCell(int material) { return material == 2; }
+bool isLidDrivenCell(int material) { return material == 3; }
 
 bool isBulkFluidCell(int material) {
   return material == 1 || material == 5 || material == 6;

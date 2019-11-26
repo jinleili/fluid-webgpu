@@ -26,6 +26,7 @@ class MetalController: UIViewController {
         // 在 viewDidLoad 里创建 wgpu 绘制对象会报 iOSurface 为 nil 的错误
         if drawObj == nil {
             if let metalView = self.view as? MetalView {
+//                drawObj = create_lip_driven_cavity(metalView.appView())
                 drawObj = create_poiseuille_view(metalView.appView())
 
                 displayLink = CADisplayLink.init(target: self, selector: #selector(enterFrame))

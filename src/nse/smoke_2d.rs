@@ -1,13 +1,15 @@
 use super::NSEFluidUniform;
 use idroid::node::ComputeNode;
 use idroid::SurfaceView;
-use wgpu::Extent3d;
 use uni_view::{AppView, GPUContext};
+use wgpu::Extent3d;
 
 pub struct Smoke2D {
     app_view: AppView,
     advert_node0: ComputeNode,
     advert_node1: ComputeNode,
+    diffuse_node: ComputeNode,
+
     swap: i32,
 }
 
@@ -65,8 +67,8 @@ impl Smoke2D {
         let advert_node0 = ComputeNode::new(
             &mut app_view.device,
             threadgroup_count,
-            &uniform_buf,
-            uniform_size,
+            vec![&uniform_buf],
+            vec![uniform_size],
             vec![&velocity0_buffer, &velocity1_buffer, &divergence_buffer, &pressure_buffer],
             vec![velocity_buf_range, velocity_buf_range, scalar_buf_range, scalar_buf_range],
             vec![],
@@ -75,14 +77,24 @@ impl Smoke2D {
         let advert_node1 = ComputeNode::new(
             &mut app_view.device,
             threadgroup_count,
-            &uniform_buf,
-            uniform_size,
+            vec![&uniform_buf],
+            vec![uniform_size],
             vec![&velocity0_buffer, &velocity1_buffer, &divergence_buffer, &pressure_buffer],
             vec![velocity_buf_range, velocity_buf_range, scalar_buf_range, scalar_buf_range],
             vec![],
             ("nse/advect", env!("CARGO_MANIFEST_DIR")),
         );
-        Smoke2D { app_view, swap, advert_node0, advert_node1 }
+        let diffuse_node = ComputeNode::new(
+            &mut app_view.device,
+            threadgroup_count,
+            vec![&uniform_buf],
+            vec![uniform_size],
+            vec![&velocity1_buffer, &velocity0_buffer, &divergence_buffer, &pressure_buffer],
+            vec![velocity_buf_range, velocity_buf_range, scalar_buf_range, scalar_buf_range],
+            vec![],
+            ("nse/advect", env!("CARGO_MANIFEST_DIR")),
+        );
+        Smoke2D { app_view, swap, advert_node0, advert_node1, diffuse_node }
     }
 }
 
@@ -106,6 +118,9 @@ impl SurfaceView for Smoke2D {
             .device
             .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
         self.advert_node0.compute(&mut self.app_view.device, &mut encoder);
+        for _ in 0..25 {
+            self.diffuse_node.compute(&mut self.app_view.device, &mut encoder);
+        }
 
         self.app_view.queue.submit(&[encoder.finish()]);
     }

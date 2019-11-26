@@ -18,8 +18,8 @@ wgpu = { git = "https://github.com/gfx-rs/wgpu-rs", rev = "cbdd74fb408d87c04423b
 # wgpu = { path = "../../wgpu-rs"}
 # uni-view = { path="../idroid/uni-view" }
 # idroid = { path="../idroid/idroid" }
-uni-view = { git = "https://github.com/grenlight/idroid", rev = "10aeb6941080d6153b1fb84f8e249fda0c89b739" }
-idroid = { git = "https://github.com/grenlight/idroid", rev = "10aeb6941080d6153b1fb84f8e249fda0c89b739" }
+uni-view = { git = "https://github.com/grenlight/idroid", rev = "b13177fea369d0656f3dbadcd175af6c560dc44c" }
+idroid = { git = "https://github.com/grenlight/idroid", rev = "b13177fea369d0656f3dbadcd175af6c560dc44c" }
 
 nalgebra-glm = "*"
 image = "0.22.1"
