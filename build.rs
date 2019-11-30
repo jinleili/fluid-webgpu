@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let shader_files: Vec<&str> = match std::env::var("TARGET") {
         Ok(target) => {
             if target.contains("ios") {
-                vec!["none", "clear_color", "lbm/particle_presenting"]
+                vec!["none", "clear_color", "particle/trajectory_presenting"]
             } else {
                 vec![]
             }
@@ -28,11 +28,11 @@ fn main() -> Result<(), Box<dyn Error>> {
             if target.contains("ios") {
                 vec![
                     "lbm/d2q9_init",
-                    "lbm/d2q9_collide_streaming",
-                    "lbm/bgk_boundary",
-                    "lbm/lid_driven_boundary",
-                    "lbm/fade_out",
-                    "lbm/particle_move",
+                    "lbm/d2q9_collide",
+                    "lbm/poiseuille_stream",
+                    "lbm/lid_driven_stream",
+                    "particle/trajectory_fade_out",
+                    "particle/trajectory_move",
                 ]
             } else {
                 vec![]

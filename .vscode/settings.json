@@ -1,4 +1,5 @@
 {
     "editor.formatOnPaste": true,
-    "editor.fontSize": 14
+    "editor.fontSize": 14,
+    "editor.wordWrapColumn": 120
 }

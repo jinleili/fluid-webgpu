@@ -16,7 +16,7 @@ void main() {
     return;
   }
 
-  uint cur_index = indexOfLattice(uv);
+  uint cur_index = latticeIndex(uv);
   vec2 past_uv = gl_GlobalInvocationID.xy -
                         (pre_velocity[cur_index] * 0.016 / lattice_size);
   velocity[cur_index] = bilinear_interpolate_2f(past_uv);

@@ -1,8 +1,9 @@
 mod smoke_2d;
 pub use smoke_2d::Smoke2D;
+use zerocopy::{AsBytes, FromBytes};
 
 #[repr(C)]
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, AsBytes, FromBytes)]
 struct NSEFluidUniform {
     // lattice 在正规化坐标空间的大小
     lattice_size: [f32; 2],

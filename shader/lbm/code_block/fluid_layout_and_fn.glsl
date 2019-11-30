@@ -33,6 +33,7 @@ layout(set = 0, binding = 4) buffer FluidBuffer2 {
 
 // sound speed
 const float Cs2 = 1.0 / 3.0;
+const int REVERSED_DERECTION[9] = int[](0, 3, 4, 1, 2, 7, 8, 5, 6);
 
 // direction's coordinate
 vec2 e(int direction) { return e_and_w[direction].xy; }
@@ -50,13 +51,9 @@ float equilibrium(vec2 velocity, float rho, int direction, float usqr) {
          (1.0 + 3.0 * e_dot_u + 4.5 * (e_dot_u * e_dot_u) - usqr);
 }
 
-int indexOfLattice(ivec2 uv) {
-  return (uv.x + (uv.y * int(lattice_num.x))) * 9;
-}
-
-int indexOfFluid(ivec2 uv) { return uv.x + (uv.y * int(lattice_num.x)); }
-
-int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
+int latticeIndex(ivec2 uv) { return (uv.x + (uv.y * int(lattice_num.x))) * 9; }
+int fieldIndex(ivec2 uv) { return uv.x + (uv.y * int(lattice_num.x)); }
+int particleIndex(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 
 bool isBounceBackCell(int material) { return material == 2; }
 bool isLidDrivenCell(int material) { return material == 3; }

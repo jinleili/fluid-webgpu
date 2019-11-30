@@ -1,17 +1,16 @@
-use super::init_data::{init_canvas_data, init_particle_data};
-use super::{AnimateUniform, FlowType, ParticleUniform, PixelInfo};
+use super::{init_canvas_data, init_trajectory_particles};
+use crate::{AnimateUniform, FlowType, ParticleUniform, PixelInfo, RenderNode};
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
 use idroid::node::ComputeNode;
 use idroid::utils::MVPUniform;
 use idroid::vertex::{Pos, PosTex};
+use zerocopy::AsBytes;
 
-use std::vec::Vec;
+use super::TrajectoryParticle;
 
-use super::Particle;
-
-pub struct RenderNode {
+pub struct TrajectoryRenderNode {
     view_size: ViewSize,
     setting_node: BindingGroupSettingNode,
     pipeline: wgpu::RenderPipeline,
@@ -26,7 +25,7 @@ pub struct RenderNode {
     depth_texture_view: wgpu::TextureView,
 }
 
-impl RenderNode {
+impl TrajectoryRenderNode {
     pub fn new(
         sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
         encoder: &mut wgpu::CommandEncoder, field_buffer: &wgpu::Buffer,
@@ -45,12 +44,15 @@ impl RenderNode {
         let (life_time, fade_out_factor, speed_factor) = match flow_type {
             FlowType::poiseuille => (60, 0.95, 20.0),
             FlowType::lid_driven_cavity => (600, 0.99, 20.0),
+            FlowType::pigments_diffuse => {
+                panic!("TrajectoryRenderNode not implement pigments_diffuse")
+            }
         };
         let uniform_size = std::mem::size_of::<ParticleUniform>() as wgpu::BufferAddress;
         let uniform_buf = idroid::utils::create_uniform_buffer2(
             device,
             encoder,
-            super::ParticleUniform {
+            ParticleUniform {
                 lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
                 lattice_num: [lattice.width as f32, lattice.height as f32],
                 particle_num: [particle.width as f32, particle.height as f32],
@@ -68,9 +70,9 @@ impl RenderNode {
             uniform1_size,
         );
 
-        let init_data = init_particle_data(particle, life_time);
+        let init_data = init_trajectory_particles(particle, life_time);
         let particle_buffer_range =
-            (particle.width * particle.height * std::mem::size_of::<Particle>() as u32)
+            (particle.width * particle.height * std::mem::size_of::<TrajectoryParticle>() as u32)
                 as wgpu::BufferAddress;
         let (particle_buffer, _) = idroid::utils::create_storage_buffer(
             device,
@@ -89,7 +91,7 @@ impl RenderNode {
             vec![&particle_buffer, field_buffer, &canvas_buffer],
             vec![particle_buffer_range, field_buffer_range, canvas_buffer_size],
             vec![],
-            ("lbm/particle_move", env!("CARGO_MANIFEST_DIR")),
+            ("particle/trajectory_move", env!("CARGO_MANIFEST_DIR")),
         );
 
         let uniform0_size = std::mem::size_of::<MVPUniform>() as wgpu::BufferAddress;
@@ -117,22 +119,23 @@ impl RenderNode {
 
         // Create the vertex and index buffers
         let (vertex_data, index_data) = Plane::new(1, 1).generate_vertices();
-        let vertex_buf = device
-            .create_buffer_mapped(vertex_data.len(), wgpu::BufferUsage::VERTEX)
-            .fill_from_slice(&vertex_data);
+        let vertex_buf =
+            device.create_buffer_with_data(&vertex_data.as_bytes(), wgpu::BufferUsage::VERTEX);
 
-        let index_buf = device
-            .create_buffer_mapped(index_data.len(), wgpu::BufferUsage::INDEX)
-            .fill_from_slice(&index_data);
+        let index_buf =
+            device.create_buffer_with_data(&index_data.as_bytes(), wgpu::BufferUsage::INDEX);
 
         // Create the render pipeline
+        let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
+            bind_group_layouts: &[&setting_node.bind_group_layout],
+        });
         let shader = idroid::shader::Shader::new(
-            "lbm/particle_presenting",
+            "particle/trajectory_presenting",
             device,
             env!("CARGO_MANIFEST_DIR"),
         );
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
-            layout: &setting_node.pipeline_layout,
+            layout: &pipeline_layout,
             vertex_stage: shader.vertex_stage(),
             fragment_stage: shader.fragment_stage(),
             rasterization_state: Some(wgpu::RasterizationStateDescriptor {
@@ -169,11 +172,11 @@ impl RenderNode {
             vec![&canvas_buffer],
             vec![canvas_buffer_size],
             vec![],
-            ("lbm/fade_out", env!("CARGO_MANIFEST_DIR")),
+            ("particle/trajectory_fade_out", env!("CARGO_MANIFEST_DIR")),
         );
         let depth_texture_view = idroid::depth_stencil::create_depth_texture_view(sc_desc, device);
 
-        RenderNode {
+        TrajectoryRenderNode {
             view_size,
             setting_node,
             pipeline,
@@ -185,37 +188,36 @@ impl RenderNode {
             fade_node,
         }
     }
+}
 
-    pub fn begin_render_pass(
+impl RenderNode for TrajectoryRenderNode {
+    fn dispatch(&mut self, cpass: &mut wgpu::ComputePass) {
+        // execute fade out
+        self.fade_node.dispatch(cpass);
+        // move particle
+        self.particle_node.dispatch(cpass);
+    }
+
+    fn begin_render_pass(
         &mut self, device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput,
         encoder: &mut wgpu::CommandEncoder,
     ) {
-        {
-            // execute fade out
-            self.fade_node.compute(device, encoder);
-        }
-        {
-            // move particle
-            self.particle_node.compute(device, encoder);
-        }
-        {
-            let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
-                    attachment: &frame.view,
-                    resolve_target: None,
-                    load_op: wgpu::LoadOp::Clear,
-                    store_op: wgpu::StoreOp::Store,
-                    clear_color: wgpu::Color { r: 0.1, g: 0.15, b: 0.17, a: 1.0 },
-                }],
-                depth_stencil_attachment: Some(
-                    idroid::depth_stencil::create_attachment_descriptor(&self.depth_texture_view),
-                ),
-            });
-            rpass.set_pipeline(&self.pipeline);
-            rpass.set_bind_group(0, &self.setting_node.bind_group, &[]);
-            rpass.set_index_buffer(&self.index_buf, 0);
-            rpass.set_vertex_buffers(0, &[(&self.vertex_buf, 0)]);
-            rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
-        }
+        let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+            color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {
+                attachment: &frame.view,
+                resolve_target: None,
+                load_op: wgpu::LoadOp::Clear,
+                store_op: wgpu::StoreOp::Store,
+                clear_color: wgpu::Color { r: 0.1, g: 0.15, b: 0.17, a: 1.0 },
+            }],
+            depth_stencil_attachment: Some(idroid::depth_stencil::create_attachment_descriptor(
+                &self.depth_texture_view,
+            )),
+        });
+        rpass.set_pipeline(&self.pipeline);
+        rpass.set_bind_group(0, &self.setting_node.bind_group, &[]);
+        rpass.set_index_buffer(&self.index_buf, 0);
+        rpass.set_vertex_buffers(0, &[(&self.vertex_buf, 0)]);
+        rpass.draw_indexed(0..self.index_count as u32, 0, 0..1);
     }
 }

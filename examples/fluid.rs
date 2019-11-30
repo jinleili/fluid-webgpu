@@ -1,15 +1,11 @@
-extern crate idroid;
 use idroid::{math::Position, SurfaceView};
-
-extern crate uni_view;
 use uni_view::AppView;
 
-extern crate fluid_webgpu;
-use fluid_webgpu::{Smoke2D};
-use fluid_webgpu::lbm::{FlowType, D2Q9Flow};
+// use fluid_webgpu::lbm::D2Q9Flow;
+use fluid_webgpu::FlowType;
+use fluid_webgpu::optimized_mem_lbm::D2Q9Flow;
 
-
-static PANIC_MSG: &str = "\n You must pass one of these names: poiseuille, lid_driven_cavity, smoke_2d! \n\n 请输入有效流体名称的其中一个：poiseuille, lid_driven_cavity, smoke_2d! \n";
+static PANIC_MSG: &str = "\n You must pass one of these names: poiseuille, lid-driven-cavity, pigments-diffuse! \n\n 请输入有效流体名称的其中一个：poiseuille, lid-driven-cavity, pigments-diffuse! \n";
 
 fn main() {
     use winit::event::{
@@ -32,16 +28,15 @@ fn main() {
 
     let mut surface_view: Box<dyn SurfaceView> = {
         let app_name: String = std::env::args().skip(1).next().unwrap();
-        if app_name == String::from("smoke_2d") {
-            Box::new(Smoke2D::new(v))
-        } else if app_name == String::from("poiseuille") {
+        if app_name == String::from("poiseuille") {
             Box::new(D2Q9Flow::new(v, FlowType::poiseuille))
-        } else if app_name == String::from("lid_driven_cavity"){
+        } else if app_name == String::from("lid-driven-cavity") {
             Box::new(D2Q9Flow::new(v, FlowType::lid_driven_cavity))
+        } else if app_name == String::from("pigments-diffuse") {
+            Box::new(D2Q9Flow::new(v, FlowType::pigments_diffuse))
         } else {
             panic!("{}", PANIC_MSG);
         }
-
     };
 
     events_loop.run(move |event, _, control_flow| {

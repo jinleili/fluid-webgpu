@@ -14,20 +14,18 @@ default = []
 
 [dependencies]
 libc = "*"
-wgpu = { git = "https://github.com/gfx-rs/wgpu-rs", rev = "cbdd74fb408d87c04423bd375806b3b6c1be1bb0"  }
+wgpu = { git = "https://github.com/gfx-rs/wgpu-rs", version = "0.4", rev = "44fa1bc2fa208fa92f80944253e0da56cb7ac1fe" }
 # wgpu = { path = "../../wgpu-rs"}
 # uni-view = { path="../idroid/uni-view" }
 # idroid = { path="../idroid/idroid" }
-uni-view = { git = "https://github.com/grenlight/idroid", rev = "b13177fea369d0656f3dbadcd175af6c560dc44c" }
-idroid = { git = "https://github.com/grenlight/idroid", rev = "b13177fea369d0656f3dbadcd175af6c560dc44c" }
+uni-view = { git = "https://github.com/grenlight/idroid", rev = "0ec922b9f36b5b47d6bd93d990b4b24dee7b6d12" }
+idroid = { git = "https://github.com/grenlight/idroid", rev = "0ec922b9f36b5b47d6bd93d990b4b24dee7b6d12" }
 
 nalgebra-glm = "*"
 image = "0.22.1"
-env_logger = "0.5"
-log = "0.4"
-failure = "0.1"
 lazy_static = "*"
 rand = "*"
+zerocopy = "0.2"
 
 [target.'cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))'.dependencies]
 shaderc = "0.6.1"
@@ -39,12 +37,17 @@ raw-window-handle = "0.3"
 shaderc = "0.6.1"
 
 [dev-dependencies]
-env_logger = "0.5"
+env_logger = "0.7"
 lazy_static = "*"
 palette = "0.4"
 rand = "0.6"
 
-[patch.crates-io]
-# fixed bug: https://github.com/gfx-rs/gfx/issues/3086
-gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx", rev = "8bd4f0d1f8ccc3875183ccb4b621023edb0ed94a" }
-gfx-hal = { git = "https://github.com/gfx-rs/gfx",  rev = "8bd4f0d1f8ccc3875183ccb4b621023edb0ed94a"}
+# patch doc: https://doc.rust-lang.org/cargo/reference/manifest.html#the-patch-section
+[patch."https://github.com/gfx-rs/wgpu"]
+wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
+wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
+
+# [patch.crates-io]
+# # fixed bug: https://github.com/gfx-rs/gfx/issues/3086
+# gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx", rev = "4130c574ce274f4afd114005046cc10380805f7e" }
+# gfx-hal = { git = "https://github.com/gfx-rs/gfx",  rev = "4130c574ce274f4afd114005046cc10380805f7e"}

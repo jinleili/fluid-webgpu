@@ -19,7 +19,7 @@ layout(set = 0, binding = 1) uniform AnimateUniform {
   float speed_factor;
 };
 
-struct Particle {
+struct TrajectoryParticle {
   vec2 pos;
   // initial position, use to reset particle position
   vec2 pos_initial;
@@ -28,7 +28,7 @@ struct Particle {
   float fade;
 };
 
-layout(set = 0, binding = 2) buffer ParticleBuffer { Particle pb[]; };
+layout(set = 0, binding = 2) buffer ParticleBuffer { TrajectoryParticle pb[]; };
 layout(set = 0, binding = 3) buffer FieldBuffer { vec4 fb[]; };
 
 struct PixelInfo {
@@ -49,11 +49,11 @@ vec4 src_f4(int u, int v) {
 
 #include "func/bilinear_interpolate_f4.glsl"
 
-int indexOfParticle(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
+int particleIndex(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 bool isBounceBackCell(int material) { return material == 2; }
 
-void update_canvas(int point_size, ivec2 canvas_size, Particle particle, int px,
-                   int py, vec4 f_info) {
+void update_canvas(int point_size, ivec2 canvas_size,
+                   TrajectoryParticle particle, int px, int py, vec4 f_info) {
   PixelInfo info =
       PixelInfo(particle.fade, abs(f_info.x) + abs(f_info.y) * 100.0, f_info.z);
   for (int x = 0; x < point_size; x++) {
@@ -73,7 +73,7 @@ void main() {
     return;
   }
 
-  Particle particle = pb[indexOfParticle(uv)];
+  TrajectoryParticle particle = pb[particleIndex(uv)];
   if (particle.life_time <= 0.1) {
     particle.fade = 0.0;
     particle.pos = particle.pos_initial;
@@ -120,5 +120,5 @@ void main() {
     }
   }
 
-  pb[indexOfParticle(uv)] = particle;
+  pb[particleIndex(uv)] = particle;
 }
