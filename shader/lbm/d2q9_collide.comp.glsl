@@ -2,19 +2,19 @@ layout(local_size_x = 16, local_size_y = 16) in;
 
 #include "lbm/code_block/fluid_layout_and_fn.glsl"
 
-void update_collide(ivec2 uv, int direction, float collide) {
+void update_collide(uvec2 uv, uint direction, float collide) {
   collidingCells[latticeIndex(uv) + direction] = collide;
 }
 
 // update macroscope velocity, dencity...
-void update_macro(ivec2 uv, vec2 velocity, float rho) {
-  int destIndex = uv.x + uv.y * int(lattice_num.x);
+void update_macro(uvec2 uv, vec2 velocity, float rho) {
+  uint destIndex = uv.x + uv.y * lattice_num.x;
   macro_info[destIndex].xyz = vec3(velocity, rho);
 }
 
 void main() {
-  ivec2 uv = ivec2(gl_GlobalInvocationID.xy);
-  if (uv.x >= int(lattice_num).x || uv.y >= int(lattice_num.y)) {
+  uvec2 uv = uvec2(gl_GlobalInvocationID.xy);
+  if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
   int material = int(macro_info[fieldIndex(uv)].w);
@@ -27,7 +27,7 @@ void main() {
   vec2 velocity = vec2(0.0);
   float rho = 0.0;
 
-  for (int i = 0; i < 9; i++) {
+  for (uint i = 0; i < 9; i++) {
     f_i[i] = streamingCells[latticeIndex(uv) + i];
     rho += f_i[i];
     velocity += e(i) * f_i[i];
@@ -45,7 +45,7 @@ void main() {
 
   // Collision step: fout = fin - omega * (fin - feq)
   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);
-  for (int i = 0; i < 9; i++) {
+  for (uint i = 0; i < 9; i++) {
     float collide =
         f_i[i] - omega() * (f_i[i] - equilibrium(velocity, rho, i, usqr));
 

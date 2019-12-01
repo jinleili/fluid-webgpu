@@ -3,10 +3,10 @@ layout(local_size_x = 16, local_size_y = 16) in;
 layout(set = 0, binding = 0) uniform ParticleUniform {
   // size of the lattice in the normalized coordinate space
   vec2 lattice_size;
-  vec2 lattice_num;
-  vec2 particle_num;
+  uvec2 lattice_num;
+  uvec2 particle_num;
   // canvas pixel size
-  vec2 canvas_size;
+  uvec2 canvas_size;
   // the value corresponding to one pixel in the normalized coordinate
   // space
   vec2 pixel_distance;

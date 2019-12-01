@@ -20,14 +20,36 @@ void main() {
     return;
   }
 
-  vec2 velocity = macro.xy;
-  float rho = macro.z;
+  vec2 velocity = vec2(0.0);
+  float rho = 0.0;
+  if (direction == 0) {
+    // update macroscope velocity, dencity...
+    for (uint i = 0; i < 9; i++) {
+      float scalar = collid_streaming_cells[latticeIndex(uv) + i];
+      rho += scalar;
+      velocity += e(i) * scalar;
+    }
+    velocity = velocity / rho;
+
+    if (isOutflowCell(material)) {
+      // outflow restore dencity
+      rho = 1.0;
+    } else if (isInflowCell(material)) {
+      // inflow add extra force
+      velocity = vec2(0.1, 0.00);
+    }
+    macro_info[destIndex].xyz = vec3(velocity, rho);
+  } else {
+    velocity = macro.xy;
+    rho = macro.z;
+  }
 
   // Collision step: fout = fin - omega * (fin - feq)
   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);
   float f_i = collid_streaming_cells[latticeIndex(uv) + direction];
-  // rest population on lattice center not need stream
+
   if (direction == 0) {
+    // rest population on lattice center not need stream
     collid_streaming_cells[latticeIndex(uv)] =
         f_i - omega() * (f_i - equilibrium(velocity, rho, direction, usqr));
   } else {

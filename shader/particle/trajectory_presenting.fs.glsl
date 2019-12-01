@@ -5,10 +5,10 @@ layout(location = 0) out vec4 frag_color;
 layout(set = 0, binding = 1) uniform ParticleUniform {
   // size of the lattice in the normalized coordinate space
   vec2 lattice_size;
-  vec2 lattice_num;
-  vec2 particle_num;
+  uvec2 lattice_num;
+  uvec2 particle_num;
   // canvas pixel size
-  vec2 canvas_size;
+  uvec2 canvas_size;
   // the value corresponding to one pixel in the normalized coordinate
   // space
   vec2 pixel_distance;

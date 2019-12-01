@@ -1,4 +1,4 @@
-use crate::{D2Q9Uniform, FlowType, FluidUniform2, PigmentParticle, PixelInfo};
+use crate::{D2Q9Uniform, FlowType, FluidUniform, PigmentParticle, PixelInfo};
 use rand::Rng;
 use wgpu::Extent3d;
 
@@ -76,7 +76,7 @@ fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) ->
 
 pub fn get_fluid_uniform(
     lattice: Extent3d, particle: Extent3d, flow_type: FlowType, sc_desc: &wgpu::SwapChainDescriptor,
-) -> (D2Q9Uniform, FluidUniform2) {
+) -> (D2Q9Uniform, FluidUniform) {
     let w0 = 4.0 / 9.0;
     let w1 = 1.0 / 9.0;
     let w2 = 1.0 / 36.0;
@@ -116,7 +116,7 @@ pub fn get_fluid_uniform(
         }
     };
 
-    let uniform = FluidUniform2 {
+    let uniform = FluidUniform {
         lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
         lattice_num: [lattice.width, lattice.height],
         particle_num: [particle.width, particle.height],

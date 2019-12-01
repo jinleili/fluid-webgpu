@@ -3,10 +3,10 @@ layout(local_size_x = 16, local_size_y = 16) in;
 layout(set = 0, binding = 0) uniform ParticleUniform {
   // size of the lattice in the normalized coordinate space
   vec2 lattice_size;
-  vec2 lattice_num;
-  vec2 particle_num;
+  uvec2 lattice_num;
+  uvec2 particle_num;
   // canvas pixel size
-  vec2 canvas_size;
+  uvec2 canvas_size;
   // the value corresponding to one pixel in the normalized coordinate
   // space
   vec2 pixel_distance;
@@ -41,10 +41,10 @@ struct PixelInfo {
 layout(set = 0, binding = 4) buffer Canvas { PixelInfo pixel_info[]; };
 
 vec4 src_f4(int u, int v) {
-  u = clamp(0, u, int(lattice_num.x - 1.0));
-  v = clamp(0, v, int(lattice_num.x - 1.0));
+  u = clamp(0, u, int(lattice_num.x - 1));
+  v = clamp(0, v, int(lattice_num.y - 1));
 
-  return fb[v * int(lattice_num.x) + u];
+  return fb[v * lattice_num.x + u];
 }
 
 #include "func/bilinear_interpolate_f4.glsl"
@@ -56,8 +56,8 @@ void update_canvas(int point_size, ivec2 canvas_size,
                    TrajectoryParticle particle, int px, int py, vec4 f_info) {
   PixelInfo info =
       PixelInfo(particle.fade, abs(f_info.x) + abs(f_info.y) * 100.0, f_info.z);
-  for (int x = 0; x < point_size; x++) {
-    for (int y = 0; y < point_size; y++) {
+  for (uint x = 0; x < point_size; x++) {
+    for (uint y = 0; y < point_size; y++) {
       ivec2 coords = ivec2(px + x, py + y);
       if (coords.x >= 0 && coords.x < canvas_size.x && coords.y >= 0 &&
           coords.y < canvas_size.y) {

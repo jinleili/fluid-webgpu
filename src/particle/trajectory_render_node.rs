@@ -54,9 +54,9 @@ impl TrajectoryRenderNode {
             encoder,
             ParticleUniform {
                 lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
-                lattice_num: [lattice.width as f32, lattice.height as f32],
-                particle_num: [particle.width as f32, particle.height as f32],
-                canvas_size: [sc_desc.width as f32, sc_desc.height as f32],
+                lattice_num: [lattice.width , lattice.height],
+                particle_num: [particle.width, particle.height],
+                canvas_size: [sc_desc.width, sc_desc.height],
                 pixel_distance: [2.0 / sc_desc.width as f32, 2.0 / sc_desc.height as f32],
             },
             uniform_size,

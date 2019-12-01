@@ -5,7 +5,8 @@ use uni_view::AppView;
 use fluid_webgpu::FlowType;
 use fluid_webgpu::optimized_mem_lbm::D2Q9Flow;
 
-static PANIC_MSG: &str = "\n You must pass one of these names: poiseuille, lid-driven-cavity, pigments-diffuse! \n\n 请输入有效流体名称的其中一个：poiseuille, lid-driven-cavity, pigments-diffuse! \n";
+static PANIC_MSG: &str =
+    "\n\n You must pass one of these names: poiseuille, lid-driven-cavity, pigments-diffuse! \n";
 
 fn main() {
     use winit::event::{

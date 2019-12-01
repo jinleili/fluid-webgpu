@@ -11,14 +11,13 @@ void main() {
   int material = int(macro_info[destIndex].w);
 
   if (isLidDrivenCell(material)) {
-    uvec2 streaming_uv = uvec2(uv.x, uv.y + 1);
-    uint target_index = latticeIndex(streaming_uv);
+    uint target_index = latticeIndex(uvec2(uv.x, uv.y + 1));
     uint cur_index = latticeIndex(uv);
     float rho = macro_info[destIndex].z;
 
     collid_streaming_cells[target_index + 1] += rho * 0.1 / 9.0;
-    collid_streaming_cells[target_index + 4] =
-        collid_streaming_cells[cur_index + 2];
+    // collid_streaming_cells[target_index + 4] =
+    //     collid_streaming_cells[cur_index + 2];
     collid_streaming_cells[target_index + 7] =
         collid_streaming_cells[cur_index + 5] - rho * 0.1 / 6.0;
     collid_streaming_cells[target_index + 8] =

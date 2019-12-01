@@ -97,8 +97,8 @@ pub fn get_fluid_uniform(
 
     let uniform = FluidUniform {
         lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
-        lattice_num: [lattice.width as f32, lattice.height as f32],
-        particle_num: [particle.width as f32, particle.height as f32],
+        lattice_num: [lattice.width, lattice.height],
+        particle_num: [particle.width, particle.height],
         pixel_distance: [2.0 / sc_desc.width as f32, 2.0 / sc_desc.height as f32],
         tau_and_omega: [tau, 1.0 / tau],
     };

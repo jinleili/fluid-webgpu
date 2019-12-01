@@ -14,18 +14,17 @@ void main() {
 
   if (isBounceBackCell(material)) {
     rho = 0.0;
-    for (int i = 0; i < 9; i++) {
+    for (uint i = 0; i < 9; i++) {
       collid_streaming_cells[latticeIndex(uv) + i] = 0.0;
     }
   }
   macro_info[destIndex].xyz = vec3(velocity, rho);
   temp_scalar_cells[destIndex] = 0.0;
-  temp_macro[destIndex] = vec3(0.0);
 
   // use equilibrium distribution as init value
   if (isBulkFluidCell(material)) {
     //   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);
-    for (int i = 0; i < 9; i++) {
+    for (uint i = 0; i < 9; i++) {
       // float feq = equilibrium(velocity, rho, i, usqr);
       collid_streaming_cells[latticeIndex(uv) + i] = w(i);
     }

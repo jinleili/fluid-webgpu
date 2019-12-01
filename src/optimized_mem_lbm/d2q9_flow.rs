@@ -5,7 +5,7 @@ use wgpu::Extent3d;
 use super::init_data::{get_fluid_uniform, init_data};
 use super::CollideStreamNode;
 
-use crate::{D2Q9Uniform, FlowType, FluidUniform2, RenderNode, TrajectoryRenderNode};
+use crate::{D2Q9Uniform, FlowType, FluidUniform, RenderNode, TrajectoryRenderNode};
 use uni_view::{AppView, GPUContext};
 
 pub struct D2Q9Flow {
@@ -15,7 +15,6 @@ pub struct D2Q9Flow {
 
     collide_stream_node: CollideStreamNode,
     boundary_node: ComputeNode,
-    macro_node: ComputeNode,
     particle_node: Box<dyn RenderNode>,
 
     swap: i32,
@@ -88,7 +87,7 @@ impl D2Q9Flow {
             uniform_size0,
         );
 
-        let uniform_size = std::mem::size_of::<FluidUniform2>() as wgpu::BufferAddress;
+        let uniform_size = std::mem::size_of::<FluidUniform>() as wgpu::BufferAddress;
         let uniform_buf = idroid::utils::create_uniform_buffer2(
             &mut app_view.device,
             &mut encoder,
@@ -124,17 +123,7 @@ impl D2Q9Flow {
             FlowType::poiseuille | FlowType::pigments_diffuse => "optimized_mem_lbm/macro",
             FlowType::lid_driven_cavity => "optimized_mem_lbm/macro",
         };
-        let macro_node = ComputeNode::new(
-            &mut app_view.device,
-            threadgroup_count,
-            vec![&uniform_buf0, &uniform_buf],
-            vec![uniform_size0, uniform_size],
-            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer, &temp_fluid_buffer],
-            vec![buffer_range, temp_buffer_range, fluid_buf_range, temp_fluid_range],
-            vec![],
-            (macro_shader, env!("CARGO_MANIFEST_DIR")),
-        );
-
+       
         let particle_node: Box<dyn RenderNode> = Box::new(TrajectoryRenderNode::new(
             &app_view.sc_desc,
             &mut app_view.device,
@@ -166,7 +155,6 @@ impl D2Q9Flow {
             lattice,
             boundary_node,
             collide_stream_node,
-            macro_node,
             particle_node,
             swap,
         }
@@ -195,7 +183,6 @@ impl SurfaceView for D2Q9Flow {
             let mut cpass = encoder.begin_compute_pass();
             self.collide_stream_node.dispatch(&mut cpass);
             self.boundary_node.dispatch(&mut cpass);
-            self.macro_node.dispatch(&mut cpass);
 
             self.particle_node.dispatch(&mut cpass);
         }

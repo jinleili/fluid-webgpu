@@ -8,8 +8,8 @@ layout(set = 0, binding = 0) uniform D2Q9Uniform {
 layout(set = 0, binding = 1) uniform FluidUniform {
   // size of the lattice in the normalized coordinate space
   vec2 lattice_size;
-  vec2 lattice_num;
-  vec2 particle_num;
+  uvec2 lattice_num;
+  uvec2 particle_num;
 
   // one pixel in the normalized coordinate space
   //
@@ -36,24 +36,24 @@ const float Cs2 = 1.0 / 3.0;
 const int REVERSED_DERECTION[9] = int[](0, 3, 4, 1, 2, 7, 8, 5, 6);
 
 // direction's coordinate
-vec2 e(int direction) { return e_and_w[direction].xy; }
+vec2 e(uint direction) { return e_and_w[direction].xy; }
 // direction's weight
-float w(int direction) { return e_and_w[direction].z; }
+float w(uint direction) { return e_and_w[direction].z; }
 
 float tau() { return tau_and_omega.x; }
 
 float omega() { return tau_and_omega.y; }
 
-float equilibrium(vec2 velocity, float rho, int direction, float usqr) {
+float equilibrium(vec2 velocity, float rho, uint direction, float usqr) {
   float e_dot_u = dot(e(direction), velocity);
   // internal fn pow(x, y) requires x cannot be negative
   return rho * w(direction) *
          (1.0 + 3.0 * e_dot_u + 4.5 * (e_dot_u * e_dot_u) - usqr);
 }
 
-int latticeIndex(ivec2 uv) { return (uv.x + (uv.y * int(lattice_num.x))) * 9; }
-int fieldIndex(ivec2 uv) { return uv.x + (uv.y * int(lattice_num.x)); }
-int particleIndex(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
+uint latticeIndex(uvec2 uv) { return (uv.x + (uv.y * lattice_num.x)) * 9; }
+uint fieldIndex(uvec2 uv) { return uv.x + (uv.y * lattice_num.x); }
+uint particleIndex(uvec2 uv) { return (uv.x + (uv.y * particle_num.x)); }
 
 bool isBounceBackCell(int material) { return material == 2; }
 bool isLidDrivenCell(int material) { return material == 3; }
