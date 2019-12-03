@@ -31,6 +31,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     "lbm/d2q9_collide",
                     "lbm/poiseuille_stream",
                     "lbm/lid_driven_stream",
+                    "optimized_mem_lbm/init",
+                    "optimized_mem_lbm/collide",
+                    "optimized_mem_lbm/stream",
+                    "optimized_mem_lbm/boundary",
+                    "optimized_mem_lbm/lid_driven_boundary",
                     "particle/trajectory_fade_out",
                     "particle/trajectory_move",
                 ]

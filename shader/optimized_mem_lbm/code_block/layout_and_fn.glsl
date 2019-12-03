@@ -33,8 +33,6 @@ layout(set = 0, binding = 4) buffer FluidBuffer2 {
   vec4 macro_info[];
 };
 
-layout(set = 0, binding = 5) buffer FluidBuffer3 { vec3 temp_macro[]; };
-
 // sound speed
 const float Cs2 = 1.0 / 3.0;
 const int REVERSED_DERECTION[9] = int[](0, 3, 4, 1, 2, 7, 8, 5, 6);

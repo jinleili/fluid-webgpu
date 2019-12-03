@@ -1,8 +1,42 @@
-use crate::{PigmentParticle, PixelInfo, TrajectoryParticle};
+use zerocopy::{AsBytes, FromBytes};
 use rand::Rng;
 
 mod trajectory_render_node;
 pub use trajectory_render_node::TrajectoryRenderNode;
+
+#[repr(C)]
+#[derive(Copy, Clone, AsBytes, FromBytes)]
+pub struct AnimateUniform {
+    pub life_time: f32,
+    pub fade_out_factor: f32,
+    pub speed_factor: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, AsBytes, FromBytes)]
+pub struct TrajectoryParticle {
+    pub pos: [f32; 2],
+    pub pos_initial: [f32; 2],
+    pub life_time: f32,
+    pub fade: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, AsBytes, FromBytes)]
+pub struct PigmentParticle {
+    pub pos: [f32; 3],
+    pub diffuse: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, AsBytes, FromBytes)]
+pub struct PixelInfo {
+    pub alpha: f32,
+    // absolute velocity
+    pub speed: f32,
+    // density
+    pub rho: f32,
+}
 
 pub fn init_trajectory_particles(num: wgpu::Extent3d, life_time: u32) -> Vec<TrajectoryParticle> {
     let mut data: Vec<TrajectoryParticle> = vec![];
@@ -33,7 +67,7 @@ pub fn init_pigment_particles(num: u32, one_pixel_distance: f32) -> Vec<PigmentP
     let mut data: Vec<PigmentParticle> = vec![];
     let mut rng = rand::thread_rng();
     let random_width = one_pixel_distance * 10.0;
-    for x in 0..num {
+    for _ in 0..num {
         data.push(PigmentParticle {
             pos: [
                 rng.gen_range(-random_width, random_width),

@@ -11,7 +11,6 @@ pub struct Q9DirectionUniform {
     any1: [i32; 31],
 }
 
-mod init_data;
 
 mod d2q9_flow;
 pub use d2q9_flow::D2Q9Flow;

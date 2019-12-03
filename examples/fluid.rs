@@ -30,11 +30,11 @@ fn main() {
     let mut surface_view: Box<dyn SurfaceView> = {
         let app_name: String = std::env::args().skip(1).next().unwrap();
         if app_name == String::from("poiseuille") {
-            Box::new(D2Q9Flow::new(v, FlowType::poiseuille))
+            Box::new(D2Q9Flow::new(v, FlowType::Poiseuille))
         } else if app_name == String::from("lid-driven-cavity") {
-            Box::new(D2Q9Flow::new(v, FlowType::lid_driven_cavity))
+            Box::new(D2Q9Flow::new(v, FlowType::LidDrivenCavity))
         } else if app_name == String::from("pigments-diffuse") {
-            Box::new(D2Q9Flow::new(v, FlowType::pigments_diffuse))
+            Box::new(D2Q9Flow::new(v, FlowType::PigmentsDiffuse))
         } else {
             panic!("{}", PANIC_MSG);
         }

@@ -1,5 +1,6 @@
 use super::{init_canvas_data, init_trajectory_particles};
-use crate::{AnimateUniform, FlowType, ParticleUniform, PixelInfo, RenderNode};
+use crate::{FlowType, ParticleUniform, RenderNode};
+use super::{AnimateUniform, PixelInfo};
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
@@ -11,7 +12,6 @@ use zerocopy::AsBytes;
 use super::TrajectoryParticle;
 
 pub struct TrajectoryRenderNode {
-    view_size: ViewSize,
     setting_node: BindingGroupSettingNode,
     pipeline: wgpu::RenderPipeline,
 
@@ -32,7 +32,7 @@ impl TrajectoryRenderNode {
         field_buffer_range: wgpu::BufferAddress, flow_type: FlowType, lattice: wgpu::Extent3d,
         particle: wgpu::Extent3d,
     ) -> Self {
-        let view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
+        let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
         let canvas_data = init_canvas_data(sc_desc);
         let canvas_buffer_size =
@@ -42,9 +42,9 @@ impl TrajectoryRenderNode {
             idroid::utils::create_storage_buffer(device, encoder, &canvas_data, canvas_buffer_size);
 
         let (life_time, fade_out_factor, speed_factor) = match flow_type {
-            FlowType::poiseuille => (60, 0.95, 20.0),
-            FlowType::lid_driven_cavity => (600, 0.99, 20.0),
-            FlowType::pigments_diffuse => {
+            FlowType::Poiseuille => (60, 0.95, 20.0),
+            FlowType::LidDrivenCavity => (600, 0.99, 20.0),
+            FlowType::PigmentsDiffuse => {
                 panic!("TrajectoryRenderNode not implement pigments_diffuse")
             }
         };
@@ -177,7 +177,6 @@ impl TrajectoryRenderNode {
         let depth_texture_view = idroid::depth_stencil::create_depth_texture_view(sc_desc, device);
 
         TrajectoryRenderNode {
-            view_size,
             setting_node,
             pipeline,
             depth_texture_view,
@@ -199,7 +198,7 @@ impl RenderNode for TrajectoryRenderNode {
     }
 
     fn begin_render_pass(
-        &mut self, device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput,
+        &mut self, _device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput,
         encoder: &mut wgpu::CommandEncoder,
     ) {
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {

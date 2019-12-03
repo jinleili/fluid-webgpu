@@ -17,15 +17,23 @@ lid-driven cavity
 ## Performance per frame
 render size: full screen on iPhone, 1600px x 1200px on macOS.
 
-#### Poiseuille flow with 100 * 75 lattice
+#### Standard LBM Poiseuille flow with 100 * 75 lattice
 
 Device | OS Version | FPS | CPU cost  | GPU frame time
 --------- | --------- |  --------- | ------------- | -------------
-MBP 2018 (15-inch, i7, AMD Radeon Pro 560X) | macOS 10.15.1 | 60 | 17%  | 3.8ms
-MBP 2018 (15-inch, i7, Intel(R) UHD Graphics 630) | macOS 10.15.1 | 60 |  21%  | 2.0ms
-iPhone 6 plus  | iOS 12.4.3 | 60 | 80% | 13.5ms
-iPhone Xs Max  | iOS 13.2.3 | 60 | 54% | 6.3ms
-iPad Pro (11-inch)  | iOS 13.1.3 | 120 | 83% | 5.4ms
+MBP 2018 (i7, AMD Radeon Pro 560X) | macOS 10.15.1 | 60fps | 17%  | 3.8ms
+MBP 2018 (i7, Intel(R) UHD Graphics 630) | macOS 10.15.1 | 60fps |  21%  | 2.0ms
+iPhone 6 plus  | iOS 12.4.3 | 60fps | 80% | 13.5ms
+iPhone Xs Max  | iOS 13.2.3 | 60fps | 54% | 6.3ms
+iPad Pro (11-inch)  | iOS 13.1.3 | 12fps | 83% | 5.4ms
+
+#### Memory consumption optimized Poiseuille flow with 200 * 150 lattice and particles separately
+Device | OS Version | FPS | Memory | CPU cost  | GPU frame time
+--------- | --------- |  --------- |  --------- | ------------- | -------------
+iPhone 6 plus  | iOS 12.4.3 | 60fps | 88.8 MB | 88% | 16.2ms
+iPhone Xs Max  | iOS 13.2.3 | 60fps | 148.7 MB | 53% | 8.2ms
+iPad Pro (11-inch)| iOS 13.1.3 | 120fps | 165.5 MB | 87% | 6.2ms
+
 
 ## Run 
 ```sh

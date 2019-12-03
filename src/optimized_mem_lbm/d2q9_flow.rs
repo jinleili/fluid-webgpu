@@ -2,17 +2,14 @@ use idroid::node::ComputeNode;
 use idroid::SurfaceView;
 use wgpu::Extent3d;
 
-use super::init_data::{get_fluid_uniform, init_data};
 use super::CollideStreamNode;
+use crate::lattice::{setup_lattice, fluid_uniform};
 
 use crate::{D2Q9Uniform, FlowType, FluidUniform, RenderNode, TrajectoryRenderNode};
 use uni_view::{AppView, GPUContext};
 
 pub struct D2Q9Flow {
     app_view: AppView,
-    flow_type: FlowType,
-    lattice: Extent3d,
-
     collide_stream_node: CollideStreamNode,
     boundary_node: ComputeNode,
     particle_node: Box<dyn RenderNode>,
@@ -25,12 +22,12 @@ impl D2Q9Flow {
         let mut app_view = app_view;
 
         let (lattice_num, particle_num) = match flow_type {
-            FlowType::poiseuille => ((100, 75), Extent3d { width: 100, height: 75, depth: 1 }),
+            FlowType::Poiseuille => ((200, 150), Extent3d { width: 200, height: 150, depth: 1 }),
             // FlowType::poiseuille => ((55, 55), Extent3d { width: 55, height: 55, depth: 1 }),
-            FlowType::lid_driven_cavity => {
+            FlowType::LidDrivenCavity => {
                 ((100, 100), Extent3d { width: 75, height: 50, depth: 1 })
             }
-            FlowType::pigments_diffuse => ((200, 150), Extent3d { width: 0, height: 0, depth: 0 }),
+            FlowType::PigmentsDiffuse => ((200, 150), Extent3d { width: 0, height: 0, depth: 0 }),
         };
         let threadgroup_count: (u32, u32) = ((lattice_num.0 + 15) / 16, (lattice_num.1 + 15) / 16);
         let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
@@ -46,7 +43,6 @@ impl D2Q9Flow {
 
         // macro fluid buffer bytes
         let fluid_buf_range = (lattice.width * lattice.height * 4 * 4) as wgpu::BufferAddress;
-        let temp_fluid_range = (lattice.width * lattice.height * 4 * 3) as wgpu::BufferAddress;
 
         let (lattice_data, temp_scalar_data, fluid_data, temp_fluid_data) =
             init_data(lattice.width, lattice.height, flow_type);
@@ -70,15 +66,15 @@ impl D2Q9Flow {
             fluid_buf_range,
         );
 
-        let (temp_fluid_buffer, _) = idroid::utils::create_storage_buffer(
-            &mut app_view.device,
-            &mut encoder,
-            &temp_fluid_data,
-            temp_fluid_range,
-        );
+        // let (temp_fluid_buffer, _) = idroid::utils::create_storage_buffer(
+        //     &mut app_view.device,
+        //     &mut encoder,
+        //     &temp_fluid_data,
+        //     temp_fluid_range,
+        // );
 
         let (d2q9_uniform_data, fluid_uniform_data) =
-            get_fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
+            fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
         let uniform_size0 = std::mem::size_of::<D2Q9Uniform>() as wgpu::BufferAddress;
         let uniform_buf0 = idroid::utils::create_uniform_buffer2(
             &mut app_view.device,
@@ -99,31 +95,25 @@ impl D2Q9Flow {
             lattice,
             vec![&uniform_buf0, &uniform_buf],
             vec![uniform_size0, uniform_size],
-            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer, &temp_fluid_buffer],
-            vec![buffer_range, temp_buffer_range, fluid_buf_range, temp_fluid_range],
+            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer],
+            vec![buffer_range, temp_buffer_range, fluid_buf_range],
             vec![],
         );
 
         let boundary_shader = match flow_type {
-            FlowType::poiseuille | FlowType::pigments_diffuse => "optimized_mem_lbm/boundary",
-            FlowType::lid_driven_cavity => "optimized_mem_lbm/lid_driven_boundary",
+            FlowType::Poiseuille | FlowType::PigmentsDiffuse => "optimized_mem_lbm/boundary",
+            FlowType::LidDrivenCavity => "optimized_mem_lbm/lid_driven_boundary",
         };
         let boundary_node = ComputeNode::new(
             &mut app_view.device,
             threadgroup_count,
             vec![&uniform_buf0, &uniform_buf],
             vec![uniform_size0, uniform_size],
-            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer, &temp_fluid_buffer],
-            vec![buffer_range, temp_buffer_range, fluid_buf_range, temp_fluid_range],
+            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer],
+            vec![buffer_range, temp_buffer_range, fluid_buf_range],
             vec![],
             (boundary_shader, env!("CARGO_MANIFEST_DIR")),
         );
-
-        let macro_shader = match flow_type {
-            FlowType::poiseuille | FlowType::pigments_diffuse => "optimized_mem_lbm/macro",
-            FlowType::lid_driven_cavity => "optimized_mem_lbm/macro",
-        };
-       
         let particle_node: Box<dyn RenderNode> = Box::new(TrajectoryRenderNode::new(
             &app_view.sc_desc,
             &mut app_view.device,
@@ -140,8 +130,8 @@ impl D2Q9Flow {
             threadgroup_count,
             vec![&uniform_buf0, &uniform_buf],
             vec![uniform_size0, uniform_size],
-            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer, &temp_fluid_buffer],
-            vec![buffer_range, temp_buffer_range, fluid_buf_range, temp_fluid_range],
+            vec![&lattice_buffer, &temp_scalar_buffer, &fluid_buffer],
+            vec![buffer_range, temp_buffer_range, fluid_buf_range],
             vec![],
             ("optimized_mem_lbm/init", env!("CARGO_MANIFEST_DIR")),
         );
@@ -151,8 +141,6 @@ impl D2Q9Flow {
 
         D2Q9Flow {
             app_view,
-            flow_type,
-            lattice,
             boundary_node,
             collide_stream_node,
             particle_node,
@@ -183,7 +171,6 @@ impl SurfaceView for D2Q9Flow {
             let mut cpass = encoder.begin_compute_pass();
             self.collide_stream_node.dispatch(&mut cpass);
             self.boundary_node.dispatch(&mut cpass);
-
             self.particle_node.dispatch(&mut cpass);
         }
 
@@ -199,4 +186,26 @@ impl SurfaceView for D2Q9Flow {
         self.app_view.queue.submit(&[encoder.finish()]);
         // println!("{:?}", (self.swap) % 600);
     }
+}
+
+pub fn init_data(
+    nx: u32, ny: u32, flow_type: FlowType,
+) -> (Vec<f32>, Vec<f32>, Vec<[f32; 4]>, Vec<[f32; 3]>) {
+    let mut lattice: Vec<f32> = vec![];
+    let mut temp_scalar_lattice: Vec<f32> = vec![];
+    let mut fluid: Vec<[f32; 4]> = vec![];
+    let mut temp_fluid: Vec<[f32; 3]> = vec![];
+
+    for j in 0..ny {
+        for i in 0..nx {
+            for _ in 0..9 {
+                lattice.push(0.0);
+            }
+            temp_scalar_lattice.push(0.0);
+
+            fluid.push([0.0, 0.0, 1.0, setup_lattice(i, j, nx, ny, flow_type) as f32]);
+            temp_fluid.push([0.0, 0.0, 0.0]);
+        }
+    }
+    (lattice, temp_scalar_lattice, fluid, temp_fluid)
 }

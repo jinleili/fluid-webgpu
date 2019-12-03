@@ -1,24 +1,10 @@
-use crate::{D2Q9Uniform, FlowType, FluidUniform};
+use crate::{ D2Q9Uniform, FlowType, FluidUniform};
 use wgpu::Extent3d;
 
-pub fn init_data(nx: u32, ny: u32, flow_type: FlowType) -> (Vec<f32>, Vec<[f32; 4]>) {
-    let mut lattice: Vec<f32> = vec![];
-    let mut fluid: Vec<[f32; 4]> = vec![];
-    for j in 0..ny {
-        for i in 0..nx {
-            for _ in 0..9 {
-                lattice.push(0.0);
-            }
-            fluid.push([0.0, 0.0, 1.0, setup_open_geometry(i, j, nx, ny, flow_type) as f32]);
-        }
-    }
-    (lattice, fluid)
-}
-
-fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u32 {
+pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u32 {
     // 不同的边用 10 的倍数来表示？
     match flow_type {
-        FlowType::poiseuille => {
+        FlowType::Poiseuille => {
             if y == 0 || y == ny - 1 {
                 return 2; // bounce back outer walls
             }
@@ -47,14 +33,14 @@ fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) ->
                 return 2;
             }
         }
-        FlowType::lid_driven_cavity => {
+        FlowType::LidDrivenCavity => {
             if y == 0 && (x > 0 && x < nx - 1) {
                 return 3; // lid-driven wall
             } else if x == 0 || x == nx - 1 || y == ny - 1 {
                 return 2; // bounce back outer walls
             }
         }
-        FlowType::pigments_diffuse => {
+        FlowType::PigmentsDiffuse => {
             if x == 0 || x == nx - 1 || y == 0 || y == ny - 1 {
                 return 2; // bounce back outer walls
             }
@@ -64,7 +50,8 @@ fn setup_open_geometry(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) ->
     return 1; // everything else shall be bulk fluid
 }
 
-pub fn get_fluid_uniform(
+
+pub fn fluid_uniform(
     lattice: Extent3d, particle: Extent3d, flow_type: FlowType, sc_desc: &wgpu::SwapChainDescriptor,
 ) -> (D2Q9Uniform, FluidUniform) {
     let w0 = 4.0 / 9.0;
@@ -75,6 +62,17 @@ pub fn get_fluid_uniform(
     // 3 0 1
     // 7 4 8
     // 按钮 屏幕 坐标取值的特点来指定方向坐标
+    // let e_and_w: [[f32; 4]; 9] = [
+    //     [0.0, 0.0, w0, 0.0],
+    //     [1.0, 0.0, w1, 0.0],
+    //     [0.0, 1.0, w1, 0.0],
+    //     [-1.0, 0.0, w1, 0.0],
+    //     [0.0, -1.0, w1, 0.0],
+    //     [1.0, 1.0, w2, 0.0],
+    //     [-1.0, 1.0, w2, 0.0],
+    //     [-1.0, -1.0, w2, 0.0],
+    //     [1.0, -1.0, w2, 0.0],
+    // ];
     let e_and_w: [[f32; 4]; 9] = [
         [0.0, 0.0, w0, 0.0],
         [1.0, 0.0, w1, 0.0],
@@ -88,8 +86,8 @@ pub fn get_fluid_uniform(
     ];
 
     let tau = match flow_type {
-        FlowType::poiseuille | FlowType::pigments_diffuse => 0.83,
-        FlowType::lid_driven_cavity => {
+        FlowType::Poiseuille | FlowType::PigmentsDiffuse => 0.83,
+        FlowType::LidDrivenCavity => {
             // lid-driven cavity flow's parameter: viscosity 0.01, lattice 100*100, U = 0.1
             0.5 * (1.0 + 6.0 * 0.01)
         }

@@ -5,21 +5,22 @@ use zerocopy::{AsBytes, FromBytes};
 
 pub mod lbm;
 pub mod optimized_mem_lbm;
-
-mod nse;
-pub use nse::Smoke2D;
-
 mod particle;
 pub use particle::TrajectoryRenderNode;
+
+// mod nse;
+// pub use nse::Smoke2D;
 
 mod ffi;
 pub use ffi::*;
 
+pub mod lattice;
+
 #[derive(Copy, Clone)]
 pub enum FlowType {
-    poiseuille,        // 泊萧叶流
-    lid_driven_cavity, // 顶盖驱动方腔
-    pigments_diffuse,  // 颜料扩散
+    Poiseuille,      // 泊萧叶流
+    LidDrivenCavity, // 顶盖驱动方腔
+    PigmentsDiffuse, // 颜料扩散
 }
 
 #[repr(C)]
@@ -54,40 +55,6 @@ pub struct ParticleUniform {
     pub canvas_size: [u32; 2],
     // 正规化坐标空间里，一个像素对应的距离值
     pub pixel_distance: [f32; 2],
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
-pub struct AnimateUniform {
-    pub life_time: f32,
-    pub fade_out_factor: f32,
-    pub speed_factor: f32,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
-pub struct TrajectoryParticle {
-    pub pos: [f32; 2],
-    pub pos_initial: [f32; 2],
-    pub life_time: f32,
-    pub fade: f32,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
-pub struct PigmentParticle {
-    pub pos: [f32; 3],
-    pub diffuse: f32,
-}
-
-#[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
-pub struct PixelInfo {
-    pub alpha: f32,
-    // absolute velocity
-    pub speed: f32,
-    // density
-    pub rho: f32,
 }
 
 pub trait RenderNode {
