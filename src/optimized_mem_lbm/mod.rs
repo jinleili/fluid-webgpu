@@ -1,6 +1,4 @@
-
 use zerocopy::{AsBytes, FromBytes};
-
 
 #[repr(C)]
 #[derive(Copy, Clone, Debug, AsBytes, FromBytes)]
@@ -10,7 +8,6 @@ pub struct Q9DirectionUniform {
     any0: [i32; 32],
     any1: [i32; 31],
 }
-
 
 mod d2q9_flow;
 pub use d2q9_flow::D2Q9Flow;

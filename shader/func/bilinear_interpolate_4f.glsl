@@ -1,4 +1,4 @@
-vec4 bilinear_interpolate_f4(vec2 uv) {
+vec4 bilinear_interpolate_4f(vec2 uv) {
   int minX = int(floor(uv.x));
   int minY = int(floor(uv.y));
 

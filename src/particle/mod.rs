@@ -4,6 +4,9 @@ use rand::Rng;
 mod trajectory_render_node;
 pub use trajectory_render_node::TrajectoryRenderNode;
 
+mod pigment_diffuse_render_node;
+pub use pigment_diffuse_render_node::PigmentDiffuseRenderNode;
+
 #[repr(C)]
 #[derive(Copy, Clone, AsBytes, FromBytes)]
 pub struct AnimateUniform {

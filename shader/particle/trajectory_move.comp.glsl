@@ -41,13 +41,13 @@ struct PixelInfo {
 layout(set = 0, binding = 4) buffer Canvas { PixelInfo pixel_info[]; };
 
 vec4 src_f4(int u, int v) {
-  u = clamp(0, u, int(lattice_num.x - 1));
-  v = clamp(0, v, int(lattice_num.y - 1));
+  u = clamp(u, 0, int(lattice_num.x - 1));
+  v = clamp(v, 0, int(lattice_num.y - 1));
 
   return fb[v * lattice_num.x + u];
 }
 
-#include "func/bilinear_interpolate_f4.glsl"
+#include "func/bilinear_interpolate_4f.glsl"
 
 int particleIndex(ivec2 uv) { return (uv.x + (uv.y * int(particle_num.x))); }
 bool isBounceBackCell(int material) { return material == 2; }
@@ -88,7 +88,7 @@ void main() {
     vec2 new_pos = particle.pos.xy + vec2(1.0, 1.0);
     vec2 ij = vec2((new_pos.x / lattice_size.x) - 0.5,
                    (new_pos.y / lattice_size.y) - 0.5);
-    vec4 f_info = bilinear_interpolate_f4(ij);
+    vec4 f_info = bilinear_interpolate_4f(ij);
 
     // vec4 f_info = src_f4(int(floor(ij.x)), int(floor(ij.y)));
     particle.pos.xy += (f_info.xy * pixel_distance * speed_factor);

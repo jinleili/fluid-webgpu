@@ -1,4 +1,4 @@
-use crate::{ D2Q9Uniform, FlowType, FluidUniform};
+use crate::{D2Q9Uniform, FlowType, FluidUniform};
 use wgpu::Extent3d;
 
 pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u32 {
@@ -41,7 +41,9 @@ pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u
             }
         }
         FlowType::PigmentsDiffuse => {
-            if x == 0 || x == nx - 1 || y == 0 || y == ny - 1 {
+            if y == 0 && x > nx / 2 - 10 && x < nx / 2 + 10 {
+                return 5; // inflow
+            } else if x == 0 || x == nx - 1 || y == 0 || y == ny - 1 {
                 return 2; // bounce back outer walls
             }
         }
@@ -49,7 +51,6 @@ pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u
 
     return 1; // everything else shall be bulk fluid
 }
-
 
 pub fn fluid_uniform(
     lattice: Extent3d, particle: Extent3d, flow_type: FlowType, sc_desc: &wgpu::SwapChainDescriptor,

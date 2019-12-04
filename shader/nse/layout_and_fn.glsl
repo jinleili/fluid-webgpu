@@ -22,7 +22,7 @@ uint latticeIndex(uvec2 uv) {
 }
 
 uint latticeIndex(int u, int v) {
-  uint uu = clamp(0, u, lattice_num.x - 1);
-  uint uv = clamp(0, v, lattice_num.y - 1);
+  uint uu = clamp(u, 0, lattice_num.x - 1);
+  uint uv = clamp(v, 0, lattice_num.y - 1);
   return uu + uv * lattice_num.x;
 }

@@ -27,8 +27,8 @@ class MetalController: UIViewController {
         if drawObj == nil {
             if let metalView = self.view as? MetalView {
 //                drawObj = lip_driven_cavity(metalView.appView())
-                drawObj = optimized_poiseuille_view(metalView.appView())
-//                drawObj = poiseuille_view(metalView.appView())
+//                drawObj = optimized_poiseuille_view(metalView.appView())
+                drawObj = pigments_diffuse(metalView.appView())
 
                 displayLink = CADisplayLink.init(target: self, selector: #selector(enterFrame))
                 self.displayLink?.add(to: .current, forMode: .default)

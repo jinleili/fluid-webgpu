@@ -48,6 +48,8 @@ wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev =
 wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
 
 # [patch.crates-io]
+# rendy-memory = {git = "https://github.com/amethyst/rendy", version = "0.5", rev = "8c5388c3e5ba63a5d48088e91f6aab88f03e23b9" } 
+
 # # fixed bug: https://github.com/gfx-rs/gfx/issues/3086
 # gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx", rev = "4130c574ce274f4afd114005046cc10380805f7e" }
 # gfx-hal = { git = "https://github.com/gfx-rs/gfx",  rev = "4130c574ce274f4afd114005046cc10380805f7e"}

@@ -29,6 +29,6 @@ pub extern "C" fn optimized_poiseuille_view(view: uni_view::AppViewObj) -> *mut 
 #[no_mangle]
 pub extern "C" fn pigments_diffuse(view: uni_view::AppViewObj) -> *mut libc::c_void {
     let rust_view = uni_view::AppView::new(view);
-    let obj = lbm::D2Q9Flow::new(rust_view, FlowType::PigmentsDiffuse);
+    let obj = optimized_mem_lbm::D2Q9Flow::new(rust_view, FlowType::PigmentsDiffuse);
     idroid::box_obj(obj)
 }

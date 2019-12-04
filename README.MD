@@ -6,11 +6,8 @@ LBM fluid simulation based on [wgpu-rs](https://github.com/gfx-rs/wgpu-rs).
 ```src/optimized_mem_lbm``` implementation is based on the following paper:
 [A New Approach to Reduce Memory Consumption in Lattice Boltzmann Method on GPU](https://pdfs.semanticscholar.org/48b9/26c6265650701ea2ff21f7ea1b90e2adf820.pdf)
 
-Poiseuille flow
 
-![poiseuille](screenshot/Poiseuille_480p.gif)
-
-lid-driven cavity
+![poiseuille](screenshot/Poiseuille_480p.gif) ![pigments diffuse](screenshot/pigments_diffuse.gif)
 
 ![poiseuille](screenshot/cavity_480p.gif)
 
@@ -42,6 +39,8 @@ iPad Pro (11-inch)| iOS 13.1.3 | 120fps | 165.5 MB | 87% | 6.2ms
 cargo run --example fluid poiseuille
 # run lid-driven cavity 
 cargo run --example fluid lid-driven-cavity
+# run pigments diffuse  
+cargo run --example fluid pigments-diffuse
 
 # build for iOS
 cargo build --target aarch64-apple-ios

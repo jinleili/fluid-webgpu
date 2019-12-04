@@ -14,10 +14,11 @@ impl CollideStreamNode {
     pub fn new(
         device: &mut wgpu::Device, lattice: wgpu::Extent3d, uniforms: Vec<&wgpu::Buffer>,
         uniform_ranges: Vec<wgpu::BufferAddress>, inout_buffer: Vec<&wgpu::Buffer>,
-        inout_buffer_range: Vec<wgpu::BufferAddress>, inout_tv: Vec<(&wgpu::TextureView, bool)>,
+        inout_buffer_range: Vec<wgpu::BufferAddress>, clide_shader_path: &str,
+        stream_shader_path: &str,
     ) -> Self {
         let mut visibilitys: Vec<wgpu::ShaderStage> = vec![];
-        for _ in 0..(uniforms.len() + inout_buffer.len() + inout_tv.len()) {
+        for _ in 0..(uniforms.len() + inout_buffer.len()) {
             visibilitys.push(wgpu::ShaderStage::COMPUTE);
         }
         let common_setting_node = BindingGroupSettingNode::new(
@@ -26,7 +27,7 @@ impl CollideStreamNode {
             uniform_ranges,
             inout_buffer,
             inout_buffer_range,
-            inout_tv,
+            vec![],
             vec![],
             visibilitys,
         );
@@ -60,7 +61,7 @@ impl CollideStreamNode {
         });
 
         let collide_shader = idroid::shader::Shader::new_by_compute(
-            "optimized_mem_lbm/collide",
+            clide_shader_path,
             device,
             env!("CARGO_MANIFEST_DIR"),
         );
@@ -70,7 +71,7 @@ impl CollideStreamNode {
         });
 
         let stream_shader = idroid::shader::Shader::new_by_compute(
-            "optimized_mem_lbm/stream",
+            stream_shader_path,
             device,
             env!("CARGO_MANIFEST_DIR"),
         );

@@ -5,8 +5,7 @@ use zerocopy::{AsBytes, FromBytes};
 
 pub mod lbm;
 pub mod optimized_mem_lbm;
-mod particle;
-pub use particle::TrajectoryRenderNode;
+pub mod particle;
 
 // mod nse;
 // pub use nse::Smoke2D;

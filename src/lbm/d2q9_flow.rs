@@ -3,7 +3,8 @@ use idroid::SurfaceView;
 use wgpu::Extent3d;
 
 use crate::lattice::{fluid_uniform, setup_lattice};
-use crate::{D2Q9Uniform, FlowType, FluidUniform, RenderNode, TrajectoryRenderNode};
+use crate::{D2Q9Uniform, FlowType, FluidUniform, RenderNode};
+use crate::particle::TrajectoryRenderNode;
 use uni_view::{AppView, GPUContext};
 
 pub struct D2Q9Flow {

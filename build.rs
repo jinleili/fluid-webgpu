@@ -15,7 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let shader_files: Vec<&str> = match std::env::var("TARGET") {
         Ok(target) => {
             if target.contains("ios") {
-                vec!["none", "clear_color", "particle/trajectory_presenting"]
+                vec!["none", "clear_color", "particle/trajectory_presenting", "particle/pigment_diffuse"]
             } else {
                 vec![]
             }
@@ -36,6 +36,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     "optimized_mem_lbm/stream",
                     "optimized_mem_lbm/boundary",
                     "optimized_mem_lbm/lid_driven_boundary",
+                    "optimized_mem_lbm/diffuse/init",
+                    "optimized_mem_lbm/diffuse/collide",
+                    "optimized_mem_lbm/diffuse/advect_collide",
+                    "optimized_mem_lbm/diffuse/stream",
+                    "optimized_mem_lbm/diffuse/boundary",
                     "particle/trajectory_fade_out",
                     "particle/trajectory_move",
                 ]
