@@ -138,7 +138,6 @@ impl D2Q9Flow {
                 particle_node = Box::new(PigmentDiffuseRenderNode::new(
                     &app_view.sc_desc,
                     &mut app_view.device,
-                    &mut encoder,
                     &macro_buffer,
                     &diffuse_scalar_buffer,
                     flow_type,
@@ -153,7 +152,6 @@ impl D2Q9Flow {
                 particle_node = Box::new(TrajectoryRenderNode::new(
                     &app_view.sc_desc,
                     &mut app_view.device,
-                    &mut encoder,
                     &macro_buffer,
                     &info_buffer,
                     flow_type,

@@ -6,7 +6,7 @@ use wgpu::Extent3d;
 
 use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo, MacroInfo};
 use crate::particle::{RenderNode, TrajectoryRenderNode};
-use crate::{D2Q9Uniform, FlowType, FluidUniform};
+use crate::{FlowType};
 use uni_view::{AppView, GPUContext};
 
 pub struct D2Q9Flow {
@@ -88,7 +88,6 @@ impl D2Q9Flow {
                 Box::new(TrajectoryRenderNode::new(
                     &app_view.sc_desc,
                     &mut app_view.device,
-                    &mut encoder,
                     &fluid_buffer,
                     &info_buffer,
                     flow_type,

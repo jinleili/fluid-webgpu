@@ -20,9 +20,9 @@ pub struct PigmentDiffuseRenderNode {
 
 impl PigmentDiffuseRenderNode {
     pub fn new(
-        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
-        encoder: &mut wgpu::CommandEncoder, fluid_buffer: &BufferObj, diffuse_buffer: &BufferObj,
-        _flow_type: FlowType, lattice: wgpu::Extent3d, particle: wgpu::Extent3d,
+        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, fluid_buffer: &BufferObj,
+        diffuse_buffer: &BufferObj, _flow_type: FlowType, lattice: wgpu::Extent3d,
+        particle: wgpu::Extent3d,
     ) -> Self {
         let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 

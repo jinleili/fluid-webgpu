@@ -1,5 +1,5 @@
 use super::{init_canvas_data, init_trajectory_particles};
-use super::{AnimateUniform, PixelInfo, RenderNode};
+use super::{AnimateUniform, RenderNode};
 use crate::{FlowType, ParticleUniform};
 use idroid::buffer::BufferObj;
 use idroid::buffer::MVPUniform;
@@ -9,8 +9,6 @@ use idroid::node::BindingGroupSettingNode;
 use idroid::node::ComputeNode;
 use idroid::vertex::{Pos, PosTex};
 use zerocopy::AsBytes;
-
-use super::TrajectoryParticle;
 
 pub struct TrajectoryRenderNode {
     setting_node: BindingGroupSettingNode,
@@ -28,17 +26,13 @@ pub struct TrajectoryRenderNode {
 
 impl TrajectoryRenderNode {
     pub fn new(
-        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
-        encoder: &mut wgpu::CommandEncoder, field_buffer: &BufferObj,
+        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, field_buffer: &BufferObj,
         lattice_info_buffer: &BufferObj, flow_type: FlowType, lattice: wgpu::Extent3d,
         particle: wgpu::Extent3d,
     ) -> Self {
         let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
-        let canvas_buffer = BufferObj::create_storage_buffer(
-            device,
-            &init_canvas_data(sc_desc),
-        );
+        let canvas_buffer = BufferObj::create_storage_buffer(device, &init_canvas_data(sc_desc));
 
         let (life_time, fade_out_factor, speed_factor) = match flow_type {
             FlowType::Poiseuille => (60, 0.95, 20.0),
