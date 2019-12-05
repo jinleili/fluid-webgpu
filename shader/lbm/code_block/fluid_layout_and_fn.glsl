@@ -25,12 +25,22 @@ layout(set = 0, binding = 1) uniform FluidUniform {
 layout(set = 0, binding = 2) buffer FluidBuffer0 { float collidingCells[]; };
 layout(set = 0, binding = 3) buffer FluidBuffer1 { float streamingCells[]; };
 
-layout(set = 0, binding = 4) buffer FluidBuffer2 {
-  // macro_info.rg is macroscope velocity
-  // macro_info.b is macroscope dencity
-  vec4 macro_info[];
+struct MacroInfo {
+  vec2 velocity;
+  float rho;
+};
+layout(set = 0, binding = 4) buffer FluidBuffer2 { MacroInfo macro_info[]; };
+
+struct LatticeInfo {
+  int material;
+  //  dynamic iter value, change material ultimately
+  float iter;
+  float threshold;
 };
 
+layout(set = 0, binding = 5) buffer LatticeBuffer {
+  LatticeInfo lattice_info[];
+};
 // sound speed
 const float Cs2 = 1.0 / 3.0;
 const int REVERSED_DERECTION[9] = int[](0, 3, 4, 1, 2, 7, 8, 5, 6);

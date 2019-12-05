@@ -12,9 +12,8 @@ void main() {
   if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
-  uint destIndex = fieldIndex(uv);
-  vec4 macro = macro_info[destIndex];
-  int material = int(macro.w);
+  uint field_index = fieldIndex(uv);
+  int material = lattice_info[field_index].material;
   // at boundary lattice, not need calculate collide and stream
   if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;
@@ -38,10 +37,11 @@ void main() {
       // inflow add extra force
       velocity = vec2(0.1, 0.00);
     }
-    macro_info[destIndex].xyz = vec3(velocity, rho);
+    macro_info[field_index].velocity = velocity;
+    macro_info[field_index].rho = rho;
   } else {
-    velocity = macro.xy;
-    rho = macro.z;
+    velocity = macro_info[field_index].velocity;
+    rho = macro_info[field_index].rho;
   }
 
   // Collision step: fout = fin - omega * (fin - feq)
@@ -53,7 +53,7 @@ void main() {
     collid_streaming_cells[latticeIndex(uv)] =
         f_i - omega() * (f_i - equilibrium(velocity, rho, direction, usqr));
   } else {
-    temp_scalar_cells[destIndex] =
+    temp_scalar_cells[field_index] =
         f_i - omega() * (f_i - equilibrium(velocity, rho, direction, usqr));
   }
 }

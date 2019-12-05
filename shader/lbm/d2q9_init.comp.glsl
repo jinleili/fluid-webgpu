@@ -11,7 +11,8 @@ void main() {
   vec2 velocity = vec2(0.0);
   float rho = 1.0;
   uint destIndex = fieldIndex(uv);
-  int material = int(macro_info[destIndex].w);
+  int material = lattice_info[destIndex].material;
+
   if (isBounceBackCell(material)) {
     rho = 0.0;
     for (uint i = 0; i < 9; i++) {
@@ -19,8 +20,8 @@ void main() {
       streamingCells[latticeIndex(uv) + i] = 0.0;
     }
   }
-  macro_info[destIndex].xyz = vec3(velocity, rho);
-
+  macro_info[destIndex].velocity = velocity;
+  macro_info[destIndex].rho = rho;
   // use equilibrium distribution as init value
   if (isBulkFluidCell(material)) {
     //   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);

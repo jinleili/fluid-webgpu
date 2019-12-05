@@ -1,4 +1,5 @@
 use super::Q9DirectionUniform;
+use idroid::buffer::BufferObj;
 use idroid::node::{BindingGroupSettingNode, DynamicBindingGroupNode};
 use zerocopy::AsBytes;
 
@@ -12,10 +13,8 @@ pub struct CollideStreamNode {
 
 impl CollideStreamNode {
     pub fn new(
-        device: &mut wgpu::Device, lattice: wgpu::Extent3d, uniforms: Vec<&wgpu::Buffer>,
-        uniform_ranges: Vec<wgpu::BufferAddress>, inout_buffer: Vec<&wgpu::Buffer>,
-        inout_buffer_range: Vec<wgpu::BufferAddress>, clide_shader_path: &str,
-        stream_shader_path: &str,
+        device: &mut wgpu::Device, lattice: wgpu::Extent3d, uniforms: Vec<&BufferObj>,
+        inout_buffer: Vec<&BufferObj>, clide_shader_path: &str, stream_shader_path: &str,
     ) -> Self {
         let mut visibilitys: Vec<wgpu::ShaderStage> = vec![];
         for _ in 0..(uniforms.len() + inout_buffer.len()) {
@@ -24,14 +23,13 @@ impl CollideStreamNode {
         let common_setting_node = BindingGroupSettingNode::new(
             device,
             uniforms,
-            uniform_ranges,
             inout_buffer,
-            inout_buffer_range,
             vec![],
             vec![],
             visibilitys,
         );
-        let uniform_buffer = device.create_buffer_with_data(
+        let uniform_buffer = BufferObj::create_uniforms_buffer(
+            device,
             &[
                 Q9DirectionUniform { direction: 0, any0: [0; 32], any1: [0; 31] },
                 Q9DirectionUniform { direction: 1, any0: [0; 32], any1: [0; 31] },
@@ -44,12 +42,10 @@ impl CollideStreamNode {
                 Q9DirectionUniform { direction: 8, any0: [0; 32], any1: [0; 31] },
             ]
             .as_bytes(),
-            wgpu::BufferUsage::UNIFORM | wgpu::BufferUsage::COPY_DST,
         );
         let step_setting_node = DynamicBindingGroupNode::new(
             device,
             vec![&uniform_buffer],
-            vec![256 * 9],
             vec![wgpu::ShaderStage::COMPUTE],
         );
 

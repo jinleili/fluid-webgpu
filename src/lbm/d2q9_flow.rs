@@ -1,10 +1,12 @@
+use idroid::buffer::*;
 use idroid::node::ComputeNode;
 use idroid::SurfaceView;
+
 use wgpu::Extent3d;
 
-use crate::lattice::{fluid_uniform, setup_lattice};
-use crate::{D2Q9Uniform, FlowType, FluidUniform, RenderNode};
-use crate::particle::TrajectoryRenderNode;
+use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo, MacroInfo};
+use crate::particle::{RenderNode, TrajectoryRenderNode};
+use crate::{D2Q9Uniform, FlowType, FluidUniform};
 use uni_view::{AppView, GPUContext};
 
 pub struct D2Q9Flow {
@@ -32,47 +34,31 @@ impl D2Q9Flow {
         let mut encoder =
             app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
-        // lattice buffer bytes
-        let buffer_range = (lattice.width * lattice.height * 9 * 4) as wgpu::BufferAddress;
-        // macro fluid buffer bytes
-        let fluid_buf_range = (lattice.width * lattice.height * 4 * 4) as wgpu::BufferAddress;
+        let (lattice_info_data, lattice_data, fluid_data) =
+            init_data(lattice.width, lattice.height, flow_type);
 
-        let (lattice_data, fluid_data) = init_data(lattice.width, lattice.height, flow_type);
-        let (lattice0_buffer, _) = idroid::utils::create_storage_buffer(
+        let lattice0_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
+        let lattice1_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
+
+        let info_buffer = BufferObj::create_storage_buffer(
             &mut app_view.device,
-            &mut encoder,
-            &lattice_data,
-            buffer_range,
+            &lattice_info_data,
         );
-        let (lattice1_buffer, _) = idroid::utils::create_storage_buffer(
+        let fluid_buffer = BufferObj::create_storage_buffer(
             &mut app_view.device,
-            &mut encoder,
-            &lattice_data,
-            buffer_range,
-        );
-        let (fluid_buffer, _) = idroid::utils::create_storage_buffer(
-            &mut app_view.device,
-            &mut encoder,
             &fluid_data,
-            fluid_buf_range,
         );
 
         let (d2q9_uniform_data, fluid_uniform_data) =
             fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
-        let uniform_size0 = std::mem::size_of::<D2Q9Uniform>() as wgpu::BufferAddress;
-        let uniform_buf0 = idroid::utils::create_uniform_buffer2(
+        let uniform_buf0 = BufferObj::create_uniform_buffer(
             &mut app_view.device,
-            &mut encoder,
-            d2q9_uniform_data,
-            uniform_size0,
+            &d2q9_uniform_data,
         );
 
-        let uniform_size = std::mem::size_of::<FluidUniform>() as wgpu::BufferAddress;
-        let uniform_buf = idroid::utils::create_uniform_buffer2(
+        let uniform_buf = BufferObj::create_uniform_buffer(
             &mut app_view.device,
-            &mut encoder,
-            fluid_uniform_data,
-            uniform_size,
+            &fluid_uniform_data,
         );
 
         // Create the render pipeline
@@ -84,9 +70,7 @@ impl D2Q9Flow {
             &mut app_view.device,
             threadgroup_count,
             vec![&uniform_buf0, &uniform_buf],
-            vec![uniform_size0, uniform_size],
-            vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
-            vec![buffer_range, buffer_range, fluid_buf_range],
+            vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer, &info_buffer],
             vec![],
             (stream_shader, env!("CARGO_MANIFEST_DIR")),
         );
@@ -94,9 +78,7 @@ impl D2Q9Flow {
             &mut app_view.device,
             threadgroup_count,
             vec![&uniform_buf0, &uniform_buf],
-            vec![uniform_size0, uniform_size],
-            vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
-            vec![buffer_range, buffer_range, fluid_buf_range],
+            vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer, &info_buffer],
             vec![],
             ("lbm/d2q9_collide", env!("CARGO_MANIFEST_DIR")),
         );
@@ -108,7 +90,7 @@ impl D2Q9Flow {
                     &mut app_view.device,
                     &mut encoder,
                     &fluid_buffer,
-                    fluid_buf_range,
+                    &info_buffer,
                     flow_type,
                     lattice,
                     particle_num,
@@ -121,9 +103,7 @@ impl D2Q9Flow {
             &mut app_view.device,
             threadgroup_count,
             vec![&uniform_buf0, &uniform_buf],
-            vec![uniform_size0, uniform_size],
-            vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer],
-            vec![buffer_range, buffer_range, fluid_buf_range],
+            vec![&lattice0_buffer, &lattice1_buffer, &fluid_buffer, &info_buffer],
             vec![],
             ("lbm/d2q9_init", env!("CARGO_MANIFEST_DIR")),
         );
@@ -174,16 +154,25 @@ impl SurfaceView for D2Q9Flow {
     }
 }
 
-pub fn init_data(nx: u32, ny: u32, flow_type: FlowType) -> (Vec<f32>, Vec<[f32; 4]>) {
+pub fn init_data(
+    nx: u32, ny: u32, flow_type: FlowType,
+) -> (Vec<LatticeInfo>, Vec<f32>, Vec<MacroInfo>) {
     let mut lattice: Vec<f32> = vec![];
-    let mut fluid: Vec<[f32; 4]> = vec![];
+    let mut fluid: Vec<MacroInfo> = vec![];
+    let mut info: Vec<LatticeInfo> = vec![];
+
     for j in 0..ny {
         for i in 0..nx {
             for _ in 0..9 {
                 lattice.push(0.0);
             }
-            fluid.push([0.0, 0.0, 1.0, setup_lattice(i, j, nx, ny, flow_type) as f32]);
+            fluid.push(MacroInfo { velocity: [0.0, 0.0], rho: 1.0, any: 0.0 });
+            info.push(LatticeInfo {
+                material: setup_lattice(i, j, nx, ny, flow_type) as i32,
+                iter: 0.0,
+                threshold: 0.0,
+            })
         }
     }
-    (lattice, fluid)
+    (info, lattice, fluid)
 }

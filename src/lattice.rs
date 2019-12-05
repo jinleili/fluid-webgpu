@@ -1,5 +1,23 @@
 use crate::{D2Q9Uniform, FlowType, FluidUniform};
 use wgpu::Extent3d;
+use zerocopy::{AsBytes, FromBytes};
+
+#[repr(C)]
+#[derive(Copy, Clone, Debug, AsBytes, FromBytes)]
+pub struct LatticeInfo {
+    pub material: i32,
+    //  dynamic iter value, change material ultimately
+    pub iter: f32,
+    pub threshold: f32,
+}
+
+#[repr(C)]
+#[derive(Copy, Clone, AsBytes, FromBytes)]
+pub struct MacroInfo {
+    pub velocity: [f32; 2],
+    pub rho: f32,
+    pub any: f32,
+}
 
 pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u32 {
     // 不同的边用 10 的倍数来表示？

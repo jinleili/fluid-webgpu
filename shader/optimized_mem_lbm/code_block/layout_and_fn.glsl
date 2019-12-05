@@ -27,10 +27,23 @@ layout(set = 0, binding = 2) buffer FluidBuffer0 {
 // only temporarily save lattice one direction value
 layout(set = 0, binding = 3) buffer FluidBuffer1 { float temp_scalar_cells[]; };
 
+struct MacroInfo {
+  vec2 velocity;
+  float rho;
+};
 layout(set = 0, binding = 4) buffer FluidBuffer2 {
-  // macro_info.rg is macroscope velocity
-  // macro_info.b is macroscope dencity
-  vec4 macro_info[];
+  MacroInfo macro_info[];
+};
+
+struct LatticeInfo {
+  int material;
+  //  dynamic iter value, change material ultimately
+  float iter;
+  float threshold;
+};
+
+layout(set = 0, binding = 5) buffer LatticeBuffer {
+  LatticeInfo lattice_info[];
 };
 
 // sound speed

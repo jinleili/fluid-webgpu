@@ -27,7 +27,7 @@ void main() {
   if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
-  int material = int(macro_info[fieldIndex(uv)].w);
+  int material = lattice_info[fieldIndex(uv)].material;
 
   if (isBulkFluidCell(material)) {
     for (uint i = 0; i < 9; i++) {

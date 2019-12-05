@@ -2,7 +2,7 @@ layout(local_size_x = 16, local_size_y = 16) in;
 
 #include "optimized_mem_lbm/code_block/layout_and_fn.glsl"
 
-layout(set = 0, binding = 5) buffer DiffuseBuffer { float diffuse_cells[]; };
+layout(set = 0, binding = 6) buffer DiffuseBuffer { float diffuse_cells[]; };
 
 void main() {
   uvec2 uv = uvec2(gl_GlobalInvocationID.xy);
@@ -12,7 +12,7 @@ void main() {
   vec2 velocity = vec2(0.0);
   float rho = 1.0;
   uint field_index = fieldIndex(uv);
-  int material = int(macro_info[field_index].w);
+  int material = lattice_info[field_index].material;
 
   if (isBounceBackCell(material)) {
     rho = 0.0;
@@ -20,7 +20,8 @@ void main() {
       collid_streaming_cells[latticeIndex(uv) + i] = 0.0;
     }
   }
-  macro_info[field_index].xyz = vec3(velocity, rho);
+  macro_info[field_index].velocity = velocity;
+  macro_info[field_index].rho = rho;
   temp_scalar_cells[field_index] = 0.0;
 
   // use equilibrium distribution as init value

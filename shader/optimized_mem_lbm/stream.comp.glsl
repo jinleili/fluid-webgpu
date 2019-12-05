@@ -13,7 +13,7 @@ void main() {
     return;
   }
   uint field_index = fieldIndex(uv);
-  int material = int(macro_info[field_index].w);
+  int material = lattice_info[field_index].material;
   // at boundary lattice, not need calculate collide and stream
   if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;

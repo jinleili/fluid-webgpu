@@ -1,8 +1,9 @@
-use crate::{FlowType, ParticleUniform, RenderNode};
+use super::RenderNode;
+use crate::{FlowType, ParticleUniform};
+use idroid::buffer::{BufferObj, MVPUniform};
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
-use idroid::utils::MVPUniform;
 use idroid::vertex::{Pos, PosTex};
 use zerocopy::AsBytes;
 
@@ -20,41 +21,31 @@ pub struct PigmentDiffuseRenderNode {
 impl PigmentDiffuseRenderNode {
     pub fn new(
         sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
-        encoder: &mut wgpu::CommandEncoder,
-        (fluid_buffer, fluid_buffer_range): (&wgpu::Buffer, wgpu::BufferAddress),
-        (diffuse_buffer, diffuse_buffer_range): (&wgpu::Buffer, wgpu::BufferAddress),
+        encoder: &mut wgpu::CommandEncoder, fluid_buffer: &BufferObj, diffuse_buffer: &BufferObj,
         _flow_type: FlowType, lattice: wgpu::Extent3d, particle: wgpu::Extent3d,
     ) -> Self {
         let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
-        let uniform_size = std::mem::size_of::<ParticleUniform>() as wgpu::BufferAddress;
-        let uniform_buf = idroid::utils::create_uniform_buffer2(
+        let uniform_buf = BufferObj::create_uniform_buffer(
             device,
-            encoder,
-            ParticleUniform {
+            &ParticleUniform {
                 lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
                 lattice_num: [lattice.width, lattice.height],
                 particle_num: [particle.width, particle.height],
                 canvas_size: [sc_desc.width, sc_desc.height],
                 pixel_distance: [2.0 / sc_desc.width as f32, 2.0 / sc_desc.height as f32],
             },
-            uniform_size,
         );
 
-        let uniform0_size = std::mem::size_of::<MVPUniform>() as wgpu::BufferAddress;
-        let uniform0_buf = idroid::utils::create_uniform_buffer2(
+        let uniform0_buf = BufferObj::create_uniform_buffer(
             device,
-            encoder,
-            MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
-            uniform0_size,
+            &MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
         );
 
         let setting_node = BindingGroupSettingNode::new(
             device,
             vec![&uniform0_buf, &uniform_buf],
-            vec![uniform0_size, uniform_size],
             vec![fluid_buffer, diffuse_buffer],
-            vec![fluid_buffer_range, diffuse_buffer_range],
             vec![],
             vec![],
             vec![

@@ -55,11 +55,3 @@ pub struct ParticleUniform {
     // 正规化坐标空间里，一个像素对应的距离值
     pub pixel_distance: [f32; 2],
 }
-
-pub trait RenderNode {
-    fn dispatch(&mut self, cpass: &mut wgpu::ComputePass);
-    fn begin_render_pass(
-        &mut self, device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput,
-        encoder: &mut wgpu::CommandEncoder,
-    );
-}

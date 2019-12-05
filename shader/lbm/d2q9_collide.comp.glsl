@@ -9,7 +9,8 @@ void update_collide(uvec2 uv, uint direction, float collide) {
 // update macroscope velocity, dencity...
 void update_macro(uvec2 uv, vec2 velocity, float rho) {
   uint destIndex = uv.x + uv.y * lattice_num.x;
-  macro_info[destIndex].xyz = vec3(velocity, rho);
+  macro_info[destIndex].velocity = velocity;
+  macro_info[destIndex].rho = rho;
 }
 
 void main() {
@@ -17,7 +18,7 @@ void main() {
   if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
-  int material = int(macro_info[fieldIndex(uv)].w);
+  int material = lattice_info[fieldIndex(uv)].material;
   // at boundary lattice, not need calculate collide and stream
   if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;

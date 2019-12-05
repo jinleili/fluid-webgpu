@@ -1,6 +1,9 @@
 use zerocopy::{AsBytes, FromBytes};
 use rand::Rng;
 
+mod render_node;
+pub use render_node::RenderNode;
+
 mod trajectory_render_node;
 pub use trajectory_render_node::TrajectoryRenderNode;
 

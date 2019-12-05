@@ -1,11 +1,12 @@
 use super::{init_canvas_data, init_trajectory_particles};
-use crate::{FlowType, ParticleUniform, RenderNode};
-use super::{AnimateUniform, PixelInfo};
+use super::{AnimateUniform, PixelInfo, RenderNode};
+use crate::{FlowType, ParticleUniform};
+use idroid::buffer::BufferObj;
+use idroid::buffer::MVPUniform;
 use idroid::geometry::plane::Plane;
 use idroid::math::ViewSize;
 use idroid::node::BindingGroupSettingNode;
 use idroid::node::ComputeNode;
-use idroid::utils::MVPUniform;
 use idroid::vertex::{Pos, PosTex};
 use zerocopy::AsBytes;
 
@@ -28,18 +29,16 @@ pub struct TrajectoryRenderNode {
 impl TrajectoryRenderNode {
     pub fn new(
         sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device,
-        encoder: &mut wgpu::CommandEncoder, field_buffer: &wgpu::Buffer,
-        field_buffer_range: wgpu::BufferAddress, flow_type: FlowType, lattice: wgpu::Extent3d,
+        encoder: &mut wgpu::CommandEncoder, field_buffer: &BufferObj,
+        lattice_info_buffer: &BufferObj, flow_type: FlowType, lattice: wgpu::Extent3d,
         particle: wgpu::Extent3d,
     ) -> Self {
         let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
-        let canvas_data = init_canvas_data(sc_desc);
-        let canvas_buffer_size =
-            (sc_desc.width * sc_desc.height * std::mem::size_of::<PixelInfo>() as u32)
-                as wgpu::BufferAddress;
-        let (canvas_buffer, _) =
-            idroid::utils::create_storage_buffer(device, encoder, &canvas_data, canvas_buffer_size);
+        let canvas_buffer = BufferObj::create_storage_buffer(
+            device,
+            &init_canvas_data(sc_desc),
+        );
 
         let (life_time, fade_out_factor, speed_factor) = match flow_type {
             FlowType::Poiseuille => (60, 0.95, 20.0),
@@ -48,37 +47,25 @@ impl TrajectoryRenderNode {
                 panic!("TrajectoryRenderNode not implement pigments_diffuse")
             }
         };
-        let uniform_size = std::mem::size_of::<ParticleUniform>() as wgpu::BufferAddress;
-        let uniform_buf = idroid::utils::create_uniform_buffer2(
+        let uniform_buf = BufferObj::create_uniform_buffer(
             device,
-            encoder,
-            ParticleUniform {
+            &ParticleUniform {
                 lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
-                lattice_num: [lattice.width , lattice.height],
+                lattice_num: [lattice.width, lattice.height],
                 particle_num: [particle.width, particle.height],
                 canvas_size: [sc_desc.width, sc_desc.height],
                 pixel_distance: [2.0 / sc_desc.width as f32, 2.0 / sc_desc.height as f32],
             },
-            uniform_size,
         );
 
-        let uniform1_size = std::mem::size_of::<AnimateUniform>() as wgpu::BufferAddress;
-        let uniform1_buf = idroid::utils::create_uniform_buffer2(
+        let uniform1_buf = BufferObj::create_uniform_buffer(
             device,
-            encoder,
-            AnimateUniform { life_time: life_time as f32, fade_out_factor, speed_factor },
-            uniform1_size,
+            &AnimateUniform { life_time: life_time as f32, fade_out_factor, speed_factor },
         );
 
-        let init_data = init_trajectory_particles(particle, life_time);
-        let particle_buffer_range =
-            (particle.width * particle.height * std::mem::size_of::<TrajectoryParticle>() as u32)
-                as wgpu::BufferAddress;
-        let (particle_buffer, _) = idroid::utils::create_storage_buffer(
+        let particle_buffer = BufferObj::create_storage_buffer(
             device,
-            encoder,
-            &init_data,
-            particle_buffer_range,
+            &init_trajectory_particles(particle, life_time),
         );
 
         let threadgroup_count = ((particle.width + 15) / 16, (particle.height + 15) / 16);
@@ -87,27 +74,20 @@ impl TrajectoryRenderNode {
             device,
             threadgroup_count,
             vec![&uniform_buf, &uniform1_buf],
-            vec![uniform_size, uniform1_size],
-            vec![&particle_buffer, field_buffer, &canvas_buffer],
-            vec![particle_buffer_range, field_buffer_range, canvas_buffer_size],
+            vec![&particle_buffer, field_buffer, &canvas_buffer, lattice_info_buffer],
             vec![],
             ("particle/trajectory_move", env!("CARGO_MANIFEST_DIR")),
         );
 
-        let uniform0_size = std::mem::size_of::<MVPUniform>() as wgpu::BufferAddress;
-        let uniform0_buf = idroid::utils::create_uniform_buffer2(
+        let uniform0_buf = BufferObj::create_uniform_buffer(
             device,
-            encoder,
-            MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
-            uniform0_size,
+            &MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
         );
 
         let setting_node = BindingGroupSettingNode::new(
             device,
             vec![&uniform0_buf, &uniform_buf],
-            vec![uniform0_size, uniform_size],
             vec![&canvas_buffer],
-            vec![canvas_buffer_size],
             vec![],
             vec![],
             vec![
@@ -168,9 +148,7 @@ impl TrajectoryRenderNode {
             device,
             ((sc_desc.width + 15) / 16, (sc_desc.height + 15) / 16),
             vec![&uniform_buf, &uniform1_buf],
-            vec![uniform_size, uniform1_size],
             vec![&canvas_buffer],
-            vec![canvas_buffer_size],
             vec![],
             ("particle/trajectory_fade_out", env!("CARGO_MANIFEST_DIR")),
         );
