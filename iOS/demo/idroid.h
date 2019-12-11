@@ -18,6 +18,7 @@ struct idroid_obj *lip_driven_cavity(struct app_view object);
 struct idroid_obj *poiseuille_view(struct app_view object);
 struct idroid_obj *optimized_poiseuille_view(struct app_view object);
 struct idroid_obj *pigments_diffuse(struct app_view object);
+struct idroid_obj *ink_diffuse(struct app_view object);
 
 void enter_frame(struct rust_obj *data);
 void touch_move(struct rust_obj *data, struct TouchPoint p);

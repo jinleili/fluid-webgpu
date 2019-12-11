@@ -6,6 +6,7 @@ use zerocopy::{AsBytes, FromBytes};
 #[derive(Copy, Clone, Debug, AsBytes, FromBytes)]
 pub struct LatticeInfo {
     pub material: i32,
+    pub diffuse_step_count: i32,
     //  dynamic iter value, change material ultimately
     pub iter: f32,
     pub threshold: f32,
@@ -65,6 +66,11 @@ pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u
                 return 2; // bounce back outer walls
             }
         }
+        _ => {
+            if x == 0 || x == nx - 1 || y == 0 || y == ny - 1 {
+                return 2; // bounce back outer walls
+            }
+        }
     }
 
     return 1; // everything else shall be bulk fluid
@@ -110,6 +116,7 @@ pub fn fluid_uniform(
             // lid-driven cavity flow's parameter: viscosity 0.01, lattice 100*100, U = 0.1
             0.5 * (1.0 + 6.0 * 0.01)
         }
+        _ => 0.83,
     };
 
     let uniform = FluidUniform {

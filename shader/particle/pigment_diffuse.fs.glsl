@@ -28,7 +28,11 @@ void main() {
   vec2 pos = uv + vec2(1.0, 1.0);
   vec2 ij = (pos / lattice_size) - vec2(0.5);
   float concentration = bilinear_interpolate_1f(ij);
-  concentration = clamp(concentration * (3.0 - concentration * 2.0), 0.0, 1.0);
+  float factor = 1.0;
+  if (concentration < 1.0) {
+    factor = (3.0 - concentration * 2.0);
+  }
+  concentration = clamp(concentration * factor, 0.0, 1.0);
 
   frag_color = vec4(vec3(1.0 - concentration), 1.0);
   // frag_color = vec4(0.5);

@@ -41,6 +41,8 @@ cargo run --example fluid poiseuille
 cargo run --example fluid lid-driven-cavity
 # run pigments diffuse  
 cargo run --example fluid pigments-diffuse
+# run ink diffuse  
+cargo run --example fluid ink-diffuse
 
 # build for iOS
 cargo build --target aarch64-apple-ios

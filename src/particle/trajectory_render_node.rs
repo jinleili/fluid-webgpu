@@ -37,8 +37,8 @@ impl TrajectoryRenderNode {
         let (life_time, fade_out_factor, speed_factor) = match flow_type {
             FlowType::Poiseuille => (60, 0.95, 20.0),
             FlowType::LidDrivenCavity => (600, 0.99, 20.0),
-            FlowType::PigmentsDiffuse => {
-                panic!("TrajectoryRenderNode not implement pigments_diffuse")
+            _ => {
+                panic!("TrajectoryRenderNode not implement pigments-diffuse and ink-diffuse")
             }
         };
         let uniform_buf = BufferObj::create_uniform_buffer(

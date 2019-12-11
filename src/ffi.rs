@@ -32,3 +32,12 @@ pub extern "C" fn pigments_diffuse(view: uni_view::AppViewObj) -> *mut libc::c_v
     let obj = optimized_mem_lbm::D2Q9Flow::new(rust_view, FlowType::PigmentsDiffuse);
     idroid::box_obj(obj)
 }
+
+#[cfg(target_os = "ios")]
+#[no_mangle]
+pub extern "C" fn ink_diffuse(view: uni_view::AppViewObj) -> *mut libc::c_void {
+    let rust_view = uni_view::AppView::new(view);
+    let obj = optimized_mem_lbm::InkDiffuse::new(rust_view);
+    idroid::box_obj(obj)
+}
+

@@ -187,8 +187,8 @@ checksum = "f29f7768b2d1be17b96158e3285951d366b40211320fb30826a76cb7a0da6400"
 dependencies = [
  "bitflags",
  "block",
- "core-foundation",
- "core-graphics",
+ "core-foundation 0.6.4",
+ "core-graphics 0.17.3",
  "foreign-types",
  "libc",
  "objc",
@@ -218,7 +218,17 @@ version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25b9e03f145fd4f2bf705e07b900cd41fc636598fe5dc452fd0db1441c3f496d"
 dependencies = [
- "core-foundation-sys",
+ "core-foundation-sys 0.6.2",
+ "libc",
+]
+
+[[package]]
+name = "core-foundation"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
+dependencies = [
+ "core-foundation-sys 0.7.0",
  "libc",
 ]
 
@@ -229,13 +239,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7ca8a5221364ef15ce201e8ed2f609fc312682a8f4e0e3d4aa5879764e0fa3b"
 
 [[package]]
+name = "core-foundation-sys"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
+
+[[package]]
 name = "core-graphics"
 version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56790968ab1c8a1202a102e6de05fc6e1ec87da99e4e93e9a7d13efbfc1e95a9"
 dependencies = [
  "bitflags",
- "core-foundation",
+ "core-foundation 0.6.4",
+ "foreign-types",
+ "libc",
+]
+
+[[package]]
+name = "core-graphics"
+version = "0.19.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59e78b2e0aaf43f08e7ae0d6bc96895ef72ff0921c7d4ff4762201b2dba376dd"
+dependencies = [
+ "bitflags",
+ "core-foundation 0.7.0",
  "foreign-types",
  "libc",
 ]
@@ -247,8 +275,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8dc065219542086f72d1e9f7aadbbab0989e980263695d129d502082d063a9d0"
 dependencies = [
  "cfg-if",
- "core-foundation-sys",
- "core-graphics",
+ "core-foundation-sys 0.6.2",
+ "core-graphics 0.17.3",
  "libc",
  "objc",
 ]
@@ -482,10 +510,10 @@ dependencies = [
  "gfx-hal",
  "libloading",
  "log",
- "parking_lot",
+ "parking_lot 0.9.0",
  "range-alloc",
  "raw-window-handle",
- "smallvec",
+ "smallvec 0.6.13",
  "spirv_cross",
  "winapi 0.3.8",
  "wio",
@@ -504,7 +532,7 @@ dependencies = [
  "log",
  "range-alloc",
  "raw-window-handle",
- "smallvec",
+ "smallvec 0.6.13",
  "spirv_cross",
  "winapi 0.3.8",
 ]
@@ -530,7 +558,7 @@ dependencies = [
  "block",
  "cocoa",
  "copyless",
- "core-graphics",
+ "core-graphics 0.17.3",
  "foreign-types",
  "gfx-auxil",
  "gfx-hal",
@@ -538,10 +566,10 @@ dependencies = [
  "log",
  "metal",
  "objc",
- "parking_lot",
+ "parking_lot 0.9.0",
  "range-alloc",
  "raw-window-handle",
- "smallvec",
+ "smallvec 0.6.13",
  "spirv_cross",
  "storage-map",
 ]
@@ -555,13 +583,13 @@ dependencies = [
  "arrayvec",
  "ash",
  "byteorder",
- "core-graphics",
+ "core-graphics 0.17.3",
  "gfx-hal",
  "lazy_static",
  "log",
  "objc",
  "raw-window-handle",
- "smallvec",
+ "smallvec 0.6.13",
  "winapi 0.3.8",
  "x11",
 ]
@@ -574,7 +602,7 @@ checksum = "7c88981665c780447bb08eb099e1ded330754a7246719bab927ee4a949c0ba7f"
 dependencies = [
  "bitflags",
  "raw-window-handle",
- "smallvec",
+ "smallvec 0.6.13",
 ]
 
 [[package]]
@@ -681,9 +709,9 @@ checksum = "501266b7edd0174f8530248f87f99c88fbe60ca4ef3dd486835b8d8d53136f7f"
 
 [[package]]
 name = "jpeg-decoder"
-version = "0.1.16"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c1aae18ffeeae409c6622c3b6a7ee49792a7e5a062eea1b135fbb74e301792ba"
+checksum = "0256f0aec7352539102a9efbcb75543227b7ab1117e0f95450023af730128451"
 dependencies = [
  "byteorder",
  "rayon",
@@ -833,7 +861,7 @@ dependencies = [
  "bitflags",
  "block",
  "cocoa",
- "core-graphics",
+ "core-graphics 0.17.3",
  "foreign-types",
  "log",
  "objc",
@@ -860,9 +888,9 @@ dependencies = [
 
 [[package]]
 name = "mio-extras"
-version = "2.0.5"
+version = "2.0.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "46e73a04c2fa6250b8d802134d56d554a9ec2922bf977777c805ea5def61ce40"
+checksum = "52403fe290012ce777c4626790c8951324a2b9e3316b3143779c72b029742f19"
 dependencies = [
  "lazycell",
  "log",
@@ -1087,8 +1115,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f842b1982eb6c2fe34036a4fbfb06dd185a3f5c8edfaacdf7d1ea10b07de6252"
 dependencies = [
  "lock_api",
- "parking_lot_core",
+ "parking_lot_core 0.6.2",
  "rustc_version",
+]
+
+[[package]]
+name = "parking_lot"
+version = "0.10.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92e98c49ab0b7ce5b222f2cc9193fc4efe11c6d0bd4f648e374684a6857b1cfc"
+dependencies = [
+ "lock_api",
+ "parking_lot_core 0.7.0",
 ]
 
 [[package]]
@@ -1102,7 +1140,21 @@ dependencies = [
  "libc",
  "redox_syscall",
  "rustc_version",
- "smallvec",
+ "smallvec 0.6.13",
+ "winapi 0.3.8",
+]
+
+[[package]]
+name = "parking_lot_core"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7582838484df45743c8434fbff785e8edf260c28748353d44bc0da32e0ceabf1"
+dependencies = [
+ "cfg-if",
+ "cloudabi",
+ "libc",
+ "redox_syscall",
+ "smallvec 1.0.0",
  "winapi 0.3.8",
 ]
 
@@ -1469,7 +1521,7 @@ dependencies = [
  "gfx-hal",
  "log",
  "relevant",
- "smallvec",
+ "smallvec 0.6.13",
 ]
 
 [[package]]
@@ -1484,7 +1536,7 @@ dependencies = [
  "log",
  "relevant",
  "slab",
- "smallvec",
+ "smallvec 0.6.13",
 ]
 
 [[package]]
@@ -1643,6 +1695,12 @@ checksum = "f7b0758c52e15a8b5e3691eae6cc559f08eee9406e548a4477ba4e67770a82b6"
 dependencies = [
  "maybe-uninit",
 ]
+
+[[package]]
+name = "smallvec"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4ecf3b85f68e8abaa7555aa5abdb1153079387e60b718283d732f03897fcfc86"
 
 [[package]]
 name = "smithay-client-toolkit"
@@ -1826,7 +1884,7 @@ name = "uni-view"
 version = "0.2.1"
 source = "git+https://github.com/grenlight/idroid?rev=436b550b79ecee827681aeea28ffa34f9d0696a3#436b550b79ecee827681aeea28ffa34f9d0696a3"
 dependencies = [
- "core-graphics",
+ "core-graphics 0.19.0",
  "lazy_static",
  "libc",
  "log",
@@ -2007,7 +2065,7 @@ dependencies = [
 [[package]]
 name = "wgpu-core"
 version = "0.1.0"
-source = "git+https://github.com/grenlight/wgpu?rev=7a57b4590b8a0ea1f608d54b901f09593f0f3d3c#7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"
+source = "git+https://github.com/grenlight/wgpu?rev=615f6f4af22945c6c293ca6729a5951e40fa4724#615f6f4af22945c6c293ca6729a5951e40fa4724"
 dependencies = [
  "arrayvec",
  "bitflags",
@@ -2020,20 +2078,20 @@ dependencies = [
  "gfx-backend-vulkan",
  "gfx-hal",
  "log",
- "parking_lot",
+ "parking_lot 0.9.0",
  "rendy-descriptor",
  "rendy-memory",
- "smallvec",
+ "smallvec 1.0.0",
  "vec_map",
 ]
 
 [[package]]
 name = "wgpu-native"
 version = "0.4.0"
-source = "git+https://github.com/grenlight/wgpu?rev=7a57b4590b8a0ea1f608d54b901f09593f0f3d3c#7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"
+source = "git+https://github.com/grenlight/wgpu?rev=615f6f4af22945c6c293ca6729a5951e40fa4724#615f6f4af22945c6c293ca6729a5951e40fa4724"
 dependencies = [
  "lazy_static",
- "parking_lot",
+ "parking_lot 0.9.0",
  "raw-window-handle",
  "wgpu-core",
 ]
@@ -2093,16 +2151,16 @@ dependencies = [
 
 [[package]]
 name = "winit"
-version = "0.20.0-alpha4"
+version = "0.20.0-alpha5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56c565622ccb05351d92445415952ca09dade6a53e75dd9e75d9bd35d4e99333"
+checksum = "14fbf7c84c8c1ff9d72982cb382c1a78fbe0f7556f49b1ca98de212d018c5b82"
 dependencies = [
  "android_glue",
  "bitflags",
  "calloop",
  "cocoa",
- "core-foundation",
- "core-graphics",
+ "core-foundation 0.6.4",
+ "core-graphics 0.17.3",
  "core-video-sys",
  "dispatch",
  "instant",
@@ -2110,7 +2168,7 @@ dependencies = [
  "libc",
  "log",
  "objc",
- "parking_lot",
+ "parking_lot 0.10.0",
  "percent-encoding",
  "raw-window-handle",
  "smithay-client-toolkit",

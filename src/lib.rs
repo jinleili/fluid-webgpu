@@ -20,6 +20,7 @@ pub enum FlowType {
     Poiseuille,      // 泊萧叶流
     LidDrivenCavity, // 顶盖驱动方腔
     PigmentsDiffuse, // 颜料扩散
+    Ink,             // 墨在纸上的扩散
 }
 
 #[repr(C)]

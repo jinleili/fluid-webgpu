@@ -49,41 +49,22 @@ impl D2Q9Flow {
         let (lattice_info_data, lattice_data, temp_scalar_data, macro_data) =
             init_data(lattice.width, lattice.height, flow_type);
 
-        let lattice_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &lattice_data,
-        );
-        let info_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &lattice_info_data,
-        );
-        let temp_scalar_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &temp_scalar_data,
-        );
-        let macro_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &macro_data,
-        );
-        let diffuse_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &lattice_data,
-        );
-        let diffuse_scalar_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &temp_scalar_data,
-        );
+        let lattice_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
+        let info_buffer =
+            BufferObj::create_storage_buffer(&mut app_view.device, &lattice_info_data);
+        let temp_scalar_buffer =
+            BufferObj::create_storage_buffer(&mut app_view.device, &temp_scalar_data);
+        let macro_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &macro_data);
+        let diffuse_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
+        let diffuse_scalar_buffer =
+            BufferObj::create_storage_buffer(&mut app_view.device, &temp_scalar_data);
 
         let (d2q9_uniform_data, fluid_uniform_data) =
             fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
-        let uniform_buf0 = BufferObj::create_uniform_buffer(
-            &mut app_view.device,
-            &d2q9_uniform_data,
-        );
-        let uniform_buf = BufferObj::create_uniform_buffer(
-            &mut app_view.device,
-            &fluid_uniform_data,
-        );
+        let uniform_buf0 =
+            BufferObj::create_uniform_buffer(&mut app_view.device, &d2q9_uniform_data);
+        let uniform_buf =
+            BufferObj::create_uniform_buffer(&mut app_view.device, &fluid_uniform_data);
         let base_buffers: Vec<&BufferObj> =
             vec![&lattice_buffer, &temp_scalar_buffer, &macro_buffer, &info_buffer];
 
@@ -253,6 +234,7 @@ pub fn init_data(
             fluid.push(MacroInfo { velocity: [0.0, 0.0], rho: 1.0, any: 0.0 });
             info.push(LatticeInfo {
                 material: setup_lattice(i, j, nx, ny, flow_type) as i32,
+                diffuse_step_count: 0,
                 iter: 0.0,
                 threshold: 0.0,
             })

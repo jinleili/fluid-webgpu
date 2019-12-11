@@ -15,7 +15,12 @@ fn main() -> Result<(), Box<dyn Error>> {
     let shader_files: Vec<&str> = match std::env::var("TARGET") {
         Ok(target) => {
             if target.contains("ios") {
-                vec!["none", "clear_color", "particle/trajectory_presenting", "particle/pigment_diffuse"]
+                vec![
+                    "none",
+                    "clear_color",
+                    "particle/trajectory_presenting",
+                    "particle/pigment_diffuse",
+                ]
             } else {
                 vec![]
             }
@@ -41,6 +46,10 @@ fn main() -> Result<(), Box<dyn Error>> {
                     "optimized_mem_lbm/diffuse/advect_collide",
                     "optimized_mem_lbm/diffuse/stream",
                     "optimized_mem_lbm/diffuse/boundary",
+                    "optimized_mem_lbm/ink/init",
+                    "optimized_mem_lbm/ink/collide",
+                    "optimized_mem_lbm/ink/stream",
+                    "optimized_mem_lbm/ink/interact",
                     "particle/trajectory_fade_out",
                     "particle/trajectory_move",
                 ]
@@ -136,9 +145,8 @@ fn parse_shader_source(source: &str, output: &mut String) {
                         if let Some(include) = get_shader_funcs(import) {
                             parse_shader_source(&include, output);
                         } else {
-                            println!("shader parse error -------");
-                            println!("can't find shader functions: {}", import);
-                            println!("--------------------------");
+                            println!("\n shader parse error: \n");
+                            println!("can't find shader functions: {} \n", import);
                         }
                     }
                 } else {

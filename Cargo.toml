@@ -22,7 +22,7 @@ uni-view = { git = "https://github.com/grenlight/idroid", rev = "436b550b79ecee8
 idroid = { git = "https://github.com/grenlight/idroid", rev = "436b550b79ecee827681aeea28ffa34f9d0696a3" }
 
 nalgebra-glm = "*"
-image = "0.22.1"
+image = "0.22.3"
 lazy_static = "*"
 rand = "*"
 zerocopy = "0.2"
@@ -30,7 +30,7 @@ zerocopy = "0.2"
 [target.'cfg(any(target_os = "macos", target_os = "windows", target_os = "linux"))'.dependencies]
 shaderc = "0.6.1"
 objc = "*"
-winit = "0.20.0-alpha4"
+winit = "0.20.0-alpha5"
 raw-window-handle = "0.3"
 
 [build-dependencies]
@@ -44,9 +44,10 @@ rand = "0.6"
 
 # patch doc: https://doc.rust-lang.org/cargo/reference/manifest.html#the-patch-section
 [patch."https://github.com/gfx-rs/wgpu"]
-wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
-wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
-
+wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "615f6f4af22945c6c293ca6729a5951e40fa4724"}
+wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "615f6f4af22945c6c293ca6729a5951e40fa4724"}
+# wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
+# wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
 # [patch.crates-io]
 # rendy-memory = {git = "https://github.com/amethyst/rendy", version = "0.5", rev = "8c5388c3e5ba63a5d48088e91f6aab88f03e23b9" } 
 

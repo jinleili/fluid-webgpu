@@ -12,5 +12,8 @@ pub struct Q9DirectionUniform {
 mod d2q9_flow;
 pub use d2q9_flow::D2Q9Flow;
 
+mod ink_diffuse;
+pub use ink_diffuse::InkDiffuse;
+
 mod collide_stream_node;
 use collide_stream_node::CollideStreamNode;

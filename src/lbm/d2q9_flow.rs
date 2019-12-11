@@ -6,7 +6,7 @@ use wgpu::Extent3d;
 
 use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo, MacroInfo};
 use crate::particle::{RenderNode, TrajectoryRenderNode};
-use crate::{FlowType};
+use crate::FlowType;
 use uni_view::{AppView, GPUContext};
 
 pub struct D2Q9Flow {
@@ -24,7 +24,7 @@ impl D2Q9Flow {
         let (lattice_num, particle_num) = match flow_type {
             FlowType::Poiseuille => ((200, 150), Extent3d { width: 100, height: 75, depth: 1 }),
             FlowType::LidDrivenCavity => ((100, 100), Extent3d { width: 75, height: 50, depth: 1 }),
-            FlowType::PigmentsDiffuse => ((200, 150), Extent3d { width: 0, height: 0, depth: 0 }),
+            _ => panic!("flow type is not implemented!"),
         };
         let threadgroup_count: (u32, u32) = ((lattice_num.0 + 15) / 16, (lattice_num.1 + 15) / 16);
         let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
@@ -40,31 +40,23 @@ impl D2Q9Flow {
         let lattice0_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
         let lattice1_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
 
-        let info_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &lattice_info_data,
-        );
-        let fluid_buffer = BufferObj::create_storage_buffer(
-            &mut app_view.device,
-            &fluid_data,
-        );
+        let info_buffer =
+            BufferObj::create_storage_buffer(&mut app_view.device, &lattice_info_data);
+        let fluid_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &fluid_data);
 
         let (d2q9_uniform_data, fluid_uniform_data) =
             fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
-        let uniform_buf0 = BufferObj::create_uniform_buffer(
-            &mut app_view.device,
-            &d2q9_uniform_data,
-        );
+        let uniform_buf0 =
+            BufferObj::create_uniform_buffer(&mut app_view.device, &d2q9_uniform_data);
 
-        let uniform_buf = BufferObj::create_uniform_buffer(
-            &mut app_view.device,
-            &fluid_uniform_data,
-        );
+        let uniform_buf =
+            BufferObj::create_uniform_buffer(&mut app_view.device, &fluid_uniform_data);
 
         // Create the render pipeline
         let stream_shader = match flow_type {
             FlowType::Poiseuille | FlowType::PigmentsDiffuse => "lbm/poiseuille_stream",
             FlowType::LidDrivenCavity => "lbm/lid_driven_stream",
+            _ => panic!("flow type is not implemented!"),
         };
         let stream_node = ComputeNode::new(
             &mut app_view.device,
@@ -95,7 +87,7 @@ impl D2Q9Flow {
                     particle_num,
                 ))
             }
-            FlowType::PigmentsDiffuse => panic!("pigments_diffuse not implemented!"),
+            _ => panic!("flow type is not implemented!"),
         };
 
         let mut init_node = ComputeNode::new(
@@ -168,6 +160,7 @@ pub fn init_data(
             fluid.push(MacroInfo { velocity: [0.0, 0.0], rho: 1.0, any: 0.0 });
             info.push(LatticeInfo {
                 material: setup_lattice(i, j, nx, ny, flow_type) as i32,
+                diffuse_step_count: 0,
                 iter: 0.0,
                 threshold: 0.0,
             })

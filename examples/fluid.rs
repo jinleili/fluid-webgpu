@@ -2,8 +2,8 @@ use idroid::{math::Position, SurfaceView};
 use uni_view::AppView;
 
 // use fluid_webgpu::lbm::D2Q9Flow;
+use fluid_webgpu::optimized_mem_lbm::{D2Q9Flow, InkDiffuse};
 use fluid_webgpu::FlowType;
-use fluid_webgpu::optimized_mem_lbm::D2Q9Flow;
 
 static PANIC_MSG: &str =
     "\n\n You must pass one of these names: poiseuille, lid-driven-cavity, pigments-diffuse! \n";
@@ -35,6 +35,8 @@ fn main() {
             Box::new(D2Q9Flow::new(v, FlowType::LidDrivenCavity))
         } else if app_name == String::from("pigments-diffuse") {
             Box::new(D2Q9Flow::new(v, FlowType::PigmentsDiffuse))
+        } else if app_name == String::from("ink-diffuse") {
+            Box::new(InkDiffuse::new(v))
         } else {
             panic!("{}", PANIC_MSG);
         }
