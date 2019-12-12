@@ -12,7 +12,7 @@ void main() {
   vec2 velocity = vec2(0.0);
   float rho = 1.0;
   uint field_index = fieldIndex(uv);
-  int material = lattice_info[field_index].material;
+  int material = int(lattice_info[field_index].material);
 
   if (isBounceBackCell(material)) {
     rho = 0.0;
@@ -20,8 +20,10 @@ void main() {
       collid_streaming_cells[latticeIndex(uv) + i] = 0.0;
     }
   }
-  macro_info[field_index].velocity = velocity;
-  macro_info[field_index].rho = rho;
+  macro_info[field_index * 3] = velocity.x;
+  macro_info[field_index * 3 + 1] = velocity.y;
+  macro_info[field_index * 3 + 2] = rho;
+  
   temp_scalar_cells[field_index] = 0.0;
 
   // use equilibrium distribution as init value

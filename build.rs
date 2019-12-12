@@ -15,12 +15,7 @@ fn main() -> Result<(), Box<dyn Error>> {
     let shader_files: Vec<&str> = match std::env::var("TARGET") {
         Ok(target) => {
             if target.contains("ios") {
-                vec![
-                    "none",
-                    "clear_color",
-                    "particle/trajectory_presenting",
-                    "particle/pigment_diffuse",
-                ]
+                vec!["none", "clear_color", "particle/trajectory_presenting", "particle/pigment_diffuse"]
             } else {
                 vec![]
             }
@@ -84,9 +79,7 @@ fn generate_shader_spirv(name: &str, ty: ShaderKind) -> Result<(), Box<dyn Error
         _ => "comp",
     };
 
-    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("shader")
-        .join(format!("{}.{}.glsl", name, suffix));
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("shader").join(format!("{}.{}.glsl", name, suffix));
     let mut out_path = "shader-spirv/".to_string();
     out_path += &format!("{}_{}.spv", (name.to_string().replace("/", "_")), suffix);
 
@@ -108,13 +101,9 @@ fn generate_shader_spirv(name: &str, ty: ShaderKind) -> Result<(), Box<dyn Error
 
     let mut compiler = shaderc::Compiler::new().unwrap();
     let options = shaderc::CompileOptions::new().unwrap();
-    let binary_result = compiler
-        .compile_into_spirv(&shader_source, ty, "shader.glsl", "main", Some(&options))
-        .unwrap();
+    let binary_result = compiler.compile_into_spirv(&shader_source, ty, "shader.glsl", "main", Some(&options)).unwrap();
 
-    let _ =
-        std::fs::File::create(&std::path::Path::new(&env!("CARGO_MANIFEST_DIR")).join(&out_path))
-            .unwrap();
+    let _ = std::fs::File::create(&std::path::Path::new(&env!("CARGO_MANIFEST_DIR")).join(&out_path)).unwrap();
     std::fs::write(&out_path, binary_result.as_binary_u8()).unwrap();
 
     Ok(())

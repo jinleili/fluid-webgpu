@@ -5,13 +5,10 @@ use uni_view::AppView;
 use fluid_webgpu::optimized_mem_lbm::{D2Q9Flow, InkDiffuse};
 use fluid_webgpu::FlowType;
 
-static PANIC_MSG: &str =
-    "\n\n You must pass one of these names: poiseuille, lid-driven-cavity, pigments-diffuse! \n";
+static PANIC_MSG: &str = "\n\n You must pass one of these names: poiseuille, lid-driven-cavity, pigments-diffuse! \n";
 
 fn main() {
-    use winit::event::{
-        ElementState, Event, KeyboardInput, MouseScrollDelta, VirtualKeyCode, WindowEvent,
-    };
+    use winit::event::{ElementState, Event, KeyboardInput, MouseScrollDelta, VirtualKeyCode, WindowEvent};
     use winit::{event_loop::EventLoop, window::Window};
 
     if std::env::args().len() == 1 || std::env::args().len() > 2 {
@@ -56,9 +53,7 @@ fn main() {
                 WindowEvent::KeyboardInput {
                     input:
                         KeyboardInput {
-                            virtual_keycode: Some(VirtualKeyCode::Escape),
-                            state: ElementState::Pressed,
-                            ..
+                            virtual_keycode: Some(VirtualKeyCode::Escape), state: ElementState::Pressed, ..
                         },
                     ..
                 }

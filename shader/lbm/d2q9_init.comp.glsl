@@ -11,7 +11,7 @@ void main() {
   vec2 velocity = vec2(0.0);
   float rho = 1.0;
   uint destIndex = fieldIndex(uv);
-  int material = lattice_info[destIndex].material;
+  int material = int(lattice_info[destIndex].material);
 
   if (isBounceBackCell(material)) {
     rho = 0.0;

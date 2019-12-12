@@ -12,8 +12,7 @@ void main() {
   }
   float color = imageLoad(brush, uv).r;
   if (color > 0.2) {
-    color *= 10.0;
-    lattice_info[fieldIndex(uvec2(lattice_uv))].diffuse_step_count = int(color) * 60;
+    color *= 5.0;
 
     for (uint i = 0; i < 9; i++) {
       collid_streaming_cells[latticeIndex(uvec2(lattice_uv)) + i] += color * w(i);

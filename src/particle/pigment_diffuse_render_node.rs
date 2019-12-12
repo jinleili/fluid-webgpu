@@ -20,14 +20,15 @@ pub struct PigmentDiffuseRenderNode {
 
 impl PigmentDiffuseRenderNode {
     pub fn new(
-        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, fluid_buffer: &BufferObj,
-        diffuse_buffer: &BufferObj, _flow_type: FlowType, lattice: wgpu::Extent3d,
+        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, encoder: &mut wgpu::CommandEncoder,
+        fluid_buffer: &BufferObj, diffuse_buffer: &BufferObj, _flow_type: FlowType, lattice: wgpu::Extent3d,
         particle: wgpu::Extent3d,
     ) -> Self {
         let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
         let uniform_buf = BufferObj::create_uniform_buffer(
             device,
+            encoder,
             &ParticleUniform {
                 lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
                 lattice_num: [lattice.width, lattice.height],
@@ -39,6 +40,7 @@ impl PigmentDiffuseRenderNode {
 
         let uniform0_buf = BufferObj::create_uniform_buffer(
             device,
+            encoder,
             &MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
         );
 
@@ -58,21 +60,15 @@ impl PigmentDiffuseRenderNode {
 
         // Create the vertex and index buffers
         let (vertex_data, index_data) = Plane::new(1, 1).generate_vertices();
-        let vertex_buf =
-            device.create_buffer_with_data(&vertex_data.as_bytes(), wgpu::BufferUsage::VERTEX);
+        let vertex_buf = device.create_buffer_with_data(&vertex_data.as_bytes(), wgpu::BufferUsage::VERTEX);
 
-        let index_buf =
-            device.create_buffer_with_data(&index_data.as_bytes(), wgpu::BufferUsage::INDEX);
+        let index_buf = device.create_buffer_with_data(&index_data.as_bytes(), wgpu::BufferUsage::INDEX);
 
         // Create the render pipeline
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             bind_group_layouts: &[&setting_node.bind_group_layout],
         });
-        let shader = idroid::shader::Shader::new(
-            "particle/pigment_diffuse",
-            device,
-            env!("CARGO_MANIFEST_DIR"),
-        );
+        let shader = idroid::shader::Shader::new("particle/pigment_diffuse", device, env!("CARGO_MANIFEST_DIR"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             layout: &pipeline_layout,
             vertex_stage: shader.vertex_stage(),
@@ -119,8 +115,7 @@ impl RenderNode for PigmentDiffuseRenderNode {
     fn dispatch(&mut self, _cpass: &mut wgpu::ComputePass) {}
 
     fn begin_render_pass(
-        &mut self, _device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput,
-        encoder: &mut wgpu::CommandEncoder,
+        &mut self, _device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput, encoder: &mut wgpu::CommandEncoder,
     ) {
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {

@@ -29,7 +29,7 @@ struct TrajectoryParticle {
 };
 
 layout(set = 0, binding = 2) buffer ParticleBuffer { TrajectoryParticle pb[]; };
-layout(set = 0, binding = 3) buffer FieldBuffer { vec3 fb[]; };
+layout(set = 0, binding = 3) buffer FieldBuffer { float fb[]; };
 
 struct PixelInfo {
   float alpha;
@@ -41,7 +41,8 @@ struct PixelInfo {
 layout(set = 0, binding = 4) buffer Canvas { PixelInfo pixel_info[]; };
 
 struct LatticeInfo {
-  int material;
+  float material;
+  float diffuse_step_count;
   //  dynamic iter value, change material ultimately
   float iter;
   float threshold;
@@ -54,8 +55,9 @@ layout(set = 0, binding = 5) buffer LatticeBuffer {
 vec3 src_3f(int u, int v) {
   u = clamp(u, 0, int(lattice_num.x - 1));
   v = clamp(v, 0, int(lattice_num.y - 1));
+  uint index = uint(v * lattice_num.x + u) * 3;
 
-  return fb[v * lattice_num.x + u];
+  return vec3(fb[index], fb[index + 1], fb[index + 2]);
 }
 
 uint fieldIndex(uvec2 uv) { return uv.x + (uv.y * lattice_num.x); }
@@ -116,8 +118,9 @@ void main() {
     // calculate if particle's new position is inside obstacle or boundary
     // lattice
     ivec2 lattice = ivec2((particle.pos.xy + vec2(1.0, 1.0)) / lattice_size);
-    uint field_index = fieldIndex(uvec2(clamp(lattice, uvec2(0), (lattice_num - uvec2(1)))));
-    int material = lattice_info[field_index].material;
+    uint field_index =
+        fieldIndex(uvec2(clamp(lattice, uvec2(0), (lattice_num - uvec2(1)))));
+    int material = int(lattice_info[field_index].material);
     if (isBounceBackCell(material) == false) {
       // update pixel's alpha value：
       //

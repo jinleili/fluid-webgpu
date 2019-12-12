@@ -7,7 +7,7 @@ void main() {
   if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
-  int material = lattice_info[fieldIndex(uv)].material;
+  int material = int(lattice_info[fieldIndex(uv)].material);
 
   // on-grid bounce back
 #include "optimized_mem_lbm/code_block/cal_on_grid_bb.glsl"

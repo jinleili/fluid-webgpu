@@ -4,7 +4,8 @@ layout(local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 1, binding = 0) uniform Q9DirectionUniform {
   uint direction;
-  float any[254];
+  // float any[63];
+  vec4 any[15];
 };
 
 // diffuse relaxation time
@@ -19,7 +20,8 @@ void main() {
   }
   uint field_index = fieldIndex(uv);
   LatticeInfo lattice = lattice_info[field_index];
-  if (isBounceBackCell(lattice.material)) {
+  if (isBounceBackCell(int(lattice.material))) {
+    temp_scalar_cells[field_index] = 0.0;
     return;
   }
 
@@ -33,18 +35,16 @@ void main() {
     }
     diffuse[field_index] = rho;
 
-    if (isBlockCell(lattice.material)) {
+    if (isBlockCell(int(lattice.material))) {
       lattice.iter += rho;
       // block lattice change to bulk lattice
       if (lattice.iter > 1.5) {
-        lattice.material = 1;
-        lattice.diffuse_step_count = int(lattice.iter) * 10;
+        lattice.material = 1.0;
         collid_streaming_cells[latticeIndex(uv)] =
             f_i - DIFFUSE_OMEGA * (f_i - diffuse_feq(rho, direction));
       }
       lattice_info[field_index] = lattice;
     } else {
-      lattice_info[field_index].diffuse_step_count -= 1;
       // if (isBulkFluidCell(lattice.material)) {
       // rest population on lattice center not need stream
       if (rho > 0.7) {

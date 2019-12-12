@@ -4,7 +4,7 @@ layout(local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 1, binding = 0) uniform Q9DirectionUniform {
   uint direction;
-  float any[254];
+  vec4 any[15];
 };
 
 void main() {
@@ -14,7 +14,7 @@ void main() {
   }
   uint field_index = fieldIndex(uv);
   LatticeInfo lattice = lattice_info[field_index];
-  if (isBounceBackCell(lattice.material)) {
+  if (isBounceBackCell(int(lattice.material))) {
     return;
   }
 
@@ -31,4 +31,6 @@ void main() {
   }
   collid_streaming_cells[latticeIndex(streaming_target) + direction] =
       temp_scalar_cells[field_index];
+  // clean temp diffuse value
+  temp_scalar_cells[field_index] = 0.0;
 }

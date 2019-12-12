@@ -187,8 +187,8 @@ checksum = "f29f7768b2d1be17b96158e3285951d366b40211320fb30826a76cb7a0da6400"
 dependencies = [
  "bitflags",
  "block",
- "core-foundation 0.6.4",
- "core-graphics 0.17.3",
+ "core-foundation",
+ "core-graphics",
  "foreign-types",
  "libc",
  "objc",
@@ -218,17 +218,7 @@ version = "0.6.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "25b9e03f145fd4f2bf705e07b900cd41fc636598fe5dc452fd0db1441c3f496d"
 dependencies = [
- "core-foundation-sys 0.6.2",
- "libc",
-]
-
-[[package]]
-name = "core-foundation"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57d24c7a13c43e870e37c1556b74555437870a04514f7685f5b354e090567171"
-dependencies = [
- "core-foundation-sys 0.7.0",
+ "core-foundation-sys",
  "libc",
 ]
 
@@ -239,31 +229,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e7ca8a5221364ef15ce201e8ed2f609fc312682a8f4e0e3d4aa5879764e0fa3b"
 
 [[package]]
-name = "core-foundation-sys"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3a71ab494c0b5b860bdc8407ae08978052417070c2ced38573a9157ad75b8ac"
-
-[[package]]
 name = "core-graphics"
 version = "0.17.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "56790968ab1c8a1202a102e6de05fc6e1ec87da99e4e93e9a7d13efbfc1e95a9"
 dependencies = [
  "bitflags",
- "core-foundation 0.6.4",
- "foreign-types",
- "libc",
-]
-
-[[package]]
-name = "core-graphics"
-version = "0.19.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "59e78b2e0aaf43f08e7ae0d6bc96895ef72ff0921c7d4ff4762201b2dba376dd"
-dependencies = [
- "bitflags",
- "core-foundation 0.7.0",
+ "core-foundation",
  "foreign-types",
  "libc",
 ]
@@ -275,8 +247,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8dc065219542086f72d1e9f7aadbbab0989e980263695d129d502082d063a9d0"
 dependencies = [
  "cfg-if",
- "core-foundation-sys 0.6.2",
- "core-graphics 0.17.3",
+ "core-foundation-sys",
+ "core-graphics",
  "libc",
  "objc",
 ]
@@ -558,7 +530,7 @@ dependencies = [
  "block",
  "cocoa",
  "copyless",
- "core-graphics 0.17.3",
+ "core-graphics",
  "foreign-types",
  "gfx-auxil",
  "gfx-hal",
@@ -583,7 +555,7 @@ dependencies = [
  "arrayvec",
  "ash",
  "byteorder",
- "core-graphics 0.17.3",
+ "core-graphics",
  "gfx-hal",
  "lazy_static",
  "log",
@@ -644,8 +616,7 @@ dependencies = [
 
 [[package]]
 name = "idroid"
-version = "0.2.1"
-source = "git+https://github.com/grenlight/idroid?rev=436b550b79ecee827681aeea28ffa34f9d0696a3#436b550b79ecee827681aeea28ffa34f9d0696a3"
+version = "0.2.2"
 dependencies = [
  "image",
  "lazy_static",
@@ -861,7 +832,7 @@ dependencies = [
  "bitflags",
  "block",
  "cocoa",
- "core-graphics 0.17.3",
+ "core-graphics",
  "foreign-types",
  "log",
  "objc",
@@ -1881,10 +1852,9 @@ checksum = "6d2783fe2d6b8c1101136184eb41be8b1ad379e4657050b8aaff0c79ee7575f9"
 
 [[package]]
 name = "uni-view"
-version = "0.2.1"
-source = "git+https://github.com/grenlight/idroid?rev=436b550b79ecee827681aeea28ffa34f9d0696a3#436b550b79ecee827681aeea28ffa34f9d0696a3"
+version = "0.2.2"
 dependencies = [
- "core-graphics 0.19.0",
+ "core-graphics",
  "lazy_static",
  "libc",
  "log",
@@ -2159,8 +2129,8 @@ dependencies = [
  "bitflags",
  "calloop",
  "cocoa",
- "core-foundation 0.6.4",
- "core-graphics 0.17.3",
+ "core-foundation",
+ "core-graphics",
  "core-video-sys",
  "dispatch",
  "instant",

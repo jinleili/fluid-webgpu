@@ -26,23 +26,22 @@ pub struct TrajectoryRenderNode {
 
 impl TrajectoryRenderNode {
     pub fn new(
-        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, field_buffer: &BufferObj,
-        lattice_info_buffer: &BufferObj, flow_type: FlowType, lattice: wgpu::Extent3d,
+        sc_desc: &wgpu::SwapChainDescriptor, device: &mut wgpu::Device, encoder: &mut wgpu::CommandEncoder,
+        field_buffer: &BufferObj, lattice_info_buffer: &BufferObj, flow_type: FlowType, lattice: wgpu::Extent3d,
         particle: wgpu::Extent3d,
     ) -> Self {
         let _view_size = ViewSize { width: sc_desc.width as f32, height: sc_desc.height as f32 };
 
-        let canvas_buffer = BufferObj::create_storage_buffer(device, &init_canvas_data(sc_desc));
+        let canvas_buffer = BufferObj::create_storage_buffer(device, encoder, &init_canvas_data(sc_desc));
 
         let (life_time, fade_out_factor, speed_factor) = match flow_type {
             FlowType::Poiseuille => (60, 0.95, 20.0),
             FlowType::LidDrivenCavity => (600, 0.99, 20.0),
-            _ => {
-                panic!("TrajectoryRenderNode not implement pigments-diffuse and ink-diffuse")
-            }
+            _ => panic!("TrajectoryRenderNode not implement pigments-diffuse and ink-diffuse"),
         };
         let uniform_buf = BufferObj::create_uniform_buffer(
             device,
+            encoder,
             &ParticleUniform {
                 lattice_size: [2.0 / lattice.width as f32, 2.0 / lattice.height as f32],
                 lattice_num: [lattice.width, lattice.height],
@@ -54,13 +53,12 @@ impl TrajectoryRenderNode {
 
         let uniform1_buf = BufferObj::create_uniform_buffer(
             device,
+            encoder,
             &AnimateUniform { life_time: life_time as f32, fade_out_factor, speed_factor },
         );
 
-        let particle_buffer = BufferObj::create_storage_buffer(
-            device,
-            &init_trajectory_particles(particle, life_time),
-        );
+        let particle_buffer =
+            BufferObj::create_storage_buffer(device, encoder, &init_trajectory_particles(particle, life_time));
 
         let threadgroup_count = ((particle.width + 15) / 16, (particle.height + 15) / 16);
 
@@ -75,6 +73,7 @@ impl TrajectoryRenderNode {
 
         let uniform0_buf = BufferObj::create_uniform_buffer(
             device,
+            encoder,
             &MVPUniform { mvp_matrix: idroid::utils::matrix_helper::fullscreen_mvp(sc_desc) },
         );
 
@@ -84,30 +83,20 @@ impl TrajectoryRenderNode {
             vec![&canvas_buffer],
             vec![],
             vec![],
-            vec![
-                wgpu::ShaderStage::VERTEX,
-                wgpu::ShaderStage::FRAGMENT,
-                wgpu::ShaderStage::FRAGMENT,
-            ],
+            vec![wgpu::ShaderStage::VERTEX, wgpu::ShaderStage::FRAGMENT, wgpu::ShaderStage::FRAGMENT],
         );
 
         // Create the vertex and index buffers
         let (vertex_data, index_data) = Plane::new(1, 1).generate_vertices();
-        let vertex_buf =
-            device.create_buffer_with_data(&vertex_data.as_bytes(), wgpu::BufferUsage::VERTEX);
+        let vertex_buf = device.create_buffer_with_data(&vertex_data.as_bytes(), wgpu::BufferUsage::VERTEX);
 
-        let index_buf =
-            device.create_buffer_with_data(&index_data.as_bytes(), wgpu::BufferUsage::INDEX);
+        let index_buf = device.create_buffer_with_data(&index_data.as_bytes(), wgpu::BufferUsage::INDEX);
 
         // Create the render pipeline
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
             bind_group_layouts: &[&setting_node.bind_group_layout],
         });
-        let shader = idroid::shader::Shader::new(
-            "particle/trajectory_presenting",
-            device,
-            env!("CARGO_MANIFEST_DIR"),
-        );
+        let shader = idroid::shader::Shader::new("particle/trajectory_presenting", device, env!("CARGO_MANIFEST_DIR"));
         let pipeline = device.create_render_pipeline(&wgpu::RenderPipelineDescriptor {
             layout: &pipeline_layout,
             vertex_stage: shader.vertex_stage(),
@@ -170,8 +159,7 @@ impl RenderNode for TrajectoryRenderNode {
     }
 
     fn begin_render_pass(
-        &mut self, _device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput,
-        encoder: &mut wgpu::CommandEncoder,
+        &mut self, _device: &mut wgpu::Device, frame: &wgpu::SwapChainOutput, encoder: &mut wgpu::CommandEncoder,
     ) {
         let mut rpass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
             color_attachments: &[wgpu::RenderPassColorAttachmentDescriptor {

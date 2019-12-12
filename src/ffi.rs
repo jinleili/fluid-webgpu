@@ -40,4 +40,3 @@ pub extern "C" fn ink_diffuse(view: uni_view::AppViewObj) -> *mut libc::c_void {
     let obj = optimized_mem_lbm::InkDiffuse::new(rust_view);
     idroid::box_obj(obj)
 }
-

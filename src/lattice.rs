@@ -5,8 +5,8 @@ use zerocopy::{AsBytes, FromBytes};
 #[repr(C)]
 #[derive(Copy, Clone, Debug, AsBytes, FromBytes)]
 pub struct LatticeInfo {
-    pub material: i32,
-    pub diffuse_step_count: i32,
+    pub material: f32,
+    pub diffuse_step_count: f32,
     //  dynamic iter value, change material ultimately
     pub iter: f32,
     pub threshold: f32,
@@ -36,14 +36,8 @@ pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u
             // obstacle
             let half_size = 6;
             let size = half_size * 2;
-            if (x > nx / 4
-                && x < nx / 4 + size
-                && y > ny / 2 - (half_size + 2)
-                && y < ny / 2 + (half_size + 2))
-                || (x > nx / 2
-                    && x < nx / 2 + size
-                    && y > ny / 4 - half_size
-                    && y < ny / 4 + half_size)
+            if (x > nx / 4 && x < nx / 4 + size && y > ny / 2 - (half_size + 2) && y < ny / 2 + (half_size + 2))
+                || (x > nx / 2 && x < nx / 2 + size && y > ny / 4 - half_size && y < ny / 4 + half_size)
                 || (x > nx / 2
                     && x < nx / 2 + size
                     && y > (ny as f32 / 1.25) as u32 - half_size

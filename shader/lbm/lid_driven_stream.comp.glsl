@@ -20,7 +20,7 @@ void main() {
   if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
-  int material = lattice_info[fieldIndex(uv)].material;
+  int material = int(lattice_info[fieldIndex(uv)].material);
 
   if (isLidDrivenCell(material)) {
     ivec2 streaming_uv = ivec2(uv.x, uv.y + 1);

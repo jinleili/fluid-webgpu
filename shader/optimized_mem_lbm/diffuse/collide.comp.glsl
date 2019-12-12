@@ -7,7 +7,7 @@ layout(set = 0, binding = 7) buffer DiffuseBuffer2 { float diffuse[]; };
 
 layout(set = 1, binding = 0) uniform Q9DirectionUniform {
   uint direction;
-  float any[254];
+  vec4 any[15];
 };
 
 // diffuse relaxation time
@@ -23,13 +23,14 @@ void main() {
     return;
   }
   uint field_index = fieldIndex(uv);
-  int material = lattice_info[field_index].material;
+  int material = int(lattice_info[field_index].material);
   // at boundary lattice, not need calculate collide and stream
   if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;
   }
 
-  vec2 velocity = macro_info[field_index].velocity;
+  vec2 velocity =
+      vec2(macro_info[field_index * 3], macro_info[field_index * 3 + 1]);
   // Collision step: fout = fin - omega * (fin - feq)
   float f_i = diffuse_cells[latticeIndex(uv) + direction];
   if (direction == 0) {

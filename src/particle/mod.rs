@@ -1,5 +1,5 @@
-use zerocopy::{AsBytes, FromBytes};
 use rand::Rng;
+use zerocopy::{AsBytes, FromBytes};
 
 mod render_node;
 pub use render_node::RenderNode;
@@ -52,12 +52,10 @@ pub fn init_trajectory_particles(num: wgpu::Extent3d, life_time: u32) -> Vec<Tra
     for x in 0..num.width {
         let pixel_x = -1.0 + step_x * x as f32;
         for y in 0..num.height {
-            let pos = [
-                pixel_x + rng.gen_range(-step_x, step_x),
-                -1.0 + step_y * y as f32 + rng.gen_range(-step_y, step_y),
-            ];
+            let pos =
+                [pixel_x + rng.gen_range(-step_x, step_x), -1.0 + step_y * y as f32 + rng.gen_range(-step_y, step_y)];
             data.push(TrajectoryParticle {
-                pos: pos,
+                pos,
                 pos_initial: pos,
                 life_time: rng.gen_range(0, life_time) as f32,
                 fade: 1.0,
@@ -75,11 +73,7 @@ pub fn init_pigment_particles(num: u32, one_pixel_distance: f32) -> Vec<PigmentP
     let random_width = one_pixel_distance * 10.0;
     for _ in 0..num {
         data.push(PigmentParticle {
-            pos: [
-                rng.gen_range(-random_width, random_width),
-                -1.0 + rng.gen_range(0.0, random_width),
-                0.0,
-            ],
+            pos: [rng.gen_range(-random_width, random_width), -1.0 + rng.gen_range(0.0, random_width), 0.0],
             diffuse: 0.0,
         });
     }

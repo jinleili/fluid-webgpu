@@ -4,7 +4,7 @@ layout(local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 1, binding = 0) uniform Q9DirectionUniform {
   uint direction;
-  float any[254];
+  vec4 any[15];
 };
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
     return;
   }
   uint field_index = fieldIndex(uv);
-  int material = lattice_info[field_index].material;
+  int material = int(lattice_info[field_index].material);
   // at boundary lattice, not need calculate collide and stream
   if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;

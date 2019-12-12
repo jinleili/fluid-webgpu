@@ -11,25 +11,19 @@ void main() {
   float rho = 1.0;
   uint field_index = fieldIndex(uv);
 
-  int material = lattice_info[field_index].material;
+  int material = int(lattice_info[field_index].material);
   if (isBounceBackCell(material)) {
     rho = 0.0;
-    for (uint i = 0; i < 9; i++) {
-      collid_streaming_cells[latticeIndex(uv) + i] = 0.0;
-    }
   }
-  macro_info[field_index].velocity = velocity;
-  macro_info[field_index].rho = rho;
-  // macro_info[field_index].velocity = vec2(1.0, 2.0);
-  // macro_info[field_index].rho = 3.0;
+
+  macro_info[field_index * 3] = velocity.x;
+  macro_info[field_index * 3 + 1] = velocity.y;
+  macro_info[field_index * 3 + 2] = rho;
+
   temp_scalar_cells[field_index] = 0.0;
 
-  // use equilibrium distribution as init value
-  if (isBulkFluidCell(material)) {
-    //   float usqr = 1.5 * (velocity.x * velocity.x + velocity.y * velocity.y);
-    for (uint i = 0; i < 9; i++) {
-      // float feq = equilibrium(velocity, rho, i, usqr);
-      collid_streaming_cells[latticeIndex(uv) + i] = w(i);
-    }
+  for (uint i = 0; i < 9; i++) {
+    // float feq = equilibrium(velocity, rho, i, usqr);
+    collid_streaming_cells[latticeIndex(uv) + i] = rho * w(i);
   }
 }

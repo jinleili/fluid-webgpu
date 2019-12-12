@@ -7,11 +7,11 @@ void main() {
   if (uv.x >= lattice_num.x || uv.y >= lattice_num.y) {
     return;
   }
-  int material = lattice_info[fieldIndex(uv)].material;
+  int material = int(lattice_info[fieldIndex(uv)].material);
   if (isLidDrivenCell(material)) {
     uint target_index = latticeIndex(uvec2(uv.x, uv.y + 1));
     uint cur_index = latticeIndex(uv);
-    float rho = macro_info[fieldIndex(uv)].rho;
+    float rho = macro_info[fieldIndex(uv) * 3 + 2];
 
     collid_streaming_cells[target_index + 1] += rho * 0.1 / 9.0;
     // collid_streaming_cells[target_index + 4] =

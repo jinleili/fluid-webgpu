@@ -13,23 +13,18 @@ pub struct CollideStreamNode {
 
 impl CollideStreamNode {
     pub fn new(
-        device: &mut wgpu::Device, lattice: wgpu::Extent3d, uniforms: Vec<&BufferObj>,
-        inout_buffer: Vec<&BufferObj>, clide_shader_path: &str, stream_shader_path: &str,
+        device: &mut wgpu::Device, encoder: &mut wgpu::CommandEncoder, lattice: wgpu::Extent3d,
+        uniforms: Vec<&BufferObj>, inout_buffer: Vec<&BufferObj>, clide_shader_path: &str, stream_shader_path: &str,
     ) -> Self {
         let mut visibilitys: Vec<wgpu::ShaderStage> = vec![];
         for _ in 0..(uniforms.len() + inout_buffer.len()) {
             visibilitys.push(wgpu::ShaderStage::COMPUTE);
         }
-        let common_setting_node = BindingGroupSettingNode::new(
-            device,
-            uniforms,
-            inout_buffer,
-            vec![],
-            vec![],
-            visibilitys,
-        );
+        let common_setting_node =
+            BindingGroupSettingNode::new(device, uniforms, inout_buffer, vec![], vec![], visibilitys);
         let uniform_buffer = BufferObj::create_uniforms_buffer(
             device,
+            encoder,
             &[
                 Q9DirectionUniform { direction: 0, any0: [0; 32], any1: [0; 31] },
                 Q9DirectionUniform { direction: 1, any0: [0; 32], any1: [0; 31] },
@@ -43,34 +38,22 @@ impl CollideStreamNode {
             ]
             .as_bytes(),
         );
-        let step_setting_node = DynamicBindingGroupNode::new(
-            device,
-            vec![&uniform_buffer],
-            vec![wgpu::ShaderStage::COMPUTE],
-        );
+        let step_setting_node =
+            DynamicBindingGroupNode::new(device, vec![&uniform_buffer], vec![wgpu::ShaderStage::COMPUTE]);
 
         let pipeline_layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
-            bind_group_layouts: &[
-                &common_setting_node.bind_group_layout,
-                &step_setting_node.bind_group_layout,
-            ],
+            bind_group_layouts: &[&common_setting_node.bind_group_layout, &step_setting_node.bind_group_layout],
         });
 
-        let collide_shader = idroid::shader::Shader::new_by_compute(
-            clide_shader_path,
-            device,
-            env!("CARGO_MANIFEST_DIR"),
-        );
+        let collide_shader =
+            idroid::shader::Shader::new_by_compute(clide_shader_path, device, env!("CARGO_MANIFEST_DIR"));
         let collide_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
             layout: &pipeline_layout,
             compute_stage: collide_shader.cs_stage(),
         });
 
-        let stream_shader = idroid::shader::Shader::new_by_compute(
-            stream_shader_path,
-            device,
-            env!("CARGO_MANIFEST_DIR"),
-        );
+        let stream_shader =
+            idroid::shader::Shader::new_by_compute(stream_shader_path, device, env!("CARGO_MANIFEST_DIR"));
         let stream_pipeline = device.create_compute_pipeline(&wgpu::ComputePipelineDescriptor {
             layout: &pipeline_layout,
             compute_stage: stream_shader.cs_stage(),

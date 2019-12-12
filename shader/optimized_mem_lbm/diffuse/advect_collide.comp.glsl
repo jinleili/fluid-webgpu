@@ -4,7 +4,7 @@ layout(local_size_x = 16, local_size_y = 16) in;
 
 layout(set = 1, binding = 0) uniform Q9DirectionUniform {
   uint direction;
-  float any[254];
+  vec4 any[15];
 };
 
 void main() {
@@ -13,7 +13,7 @@ void main() {
     return;
   }
   uint field_index = fieldIndex(uv);
-  int material = lattice_info[field_index].material;
+  int material = int(lattice_info[field_index].material);
   // at boundary lattice, not need calculate collide and stream
   if (isBounceBackCell(material) || isLidDrivenCell(material)) {
     return;
@@ -34,11 +34,14 @@ void main() {
       // inflow add extra force
       velocity = vec2(0.0, 0.1);
     }
-    macro_info[field_index].velocity = velocity;
-    macro_info[field_index].rho = rho;
+    macro_info[field_index * 3] = velocity.x;
+    macro_info[field_index * 3 + 1] = velocity.y;
+    macro_info[field_index * 3 + 2] = rho;
+
   } else {
-    velocity = macro_info[field_index].velocity;
-    rho = macro_info[field_index].rho;
+    velocity =
+        vec2(macro_info[field_index * 3], macro_info[field_index * 3 + 1]);
+    rho = macro_info[field_index * 3 + 2];
   }
 
   // Collision step: fout = fin - omega * (fin - feq)

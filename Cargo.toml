@@ -16,10 +16,10 @@ default = []
 libc = "*"
 wgpu = { git = "https://github.com/gfx-rs/wgpu-rs", version = "0.4", rev = "44fa1bc2fa208fa92f80944253e0da56cb7ac1fe" }
 # wgpu = { path = "../../wgpu-rs"}
-# uni-view = { path="../idroid/uni-view" }
-# idroid = { path="../idroid/idroid" }
-uni-view = { git = "https://github.com/grenlight/idroid", rev = "436b550b79ecee827681aeea28ffa34f9d0696a3" }
-idroid = { git = "https://github.com/grenlight/idroid", rev = "436b550b79ecee827681aeea28ffa34f9d0696a3" }
+uni-view = { path="../idroid/uni-view" }
+idroid = { path="../idroid/idroid" }
+# uni-view = { git = "https://github.com/grenlight/idroid", rev = "436b550b79ecee827681aeea28ffa34f9d0696a3" }
+# idroid = { git = "https://github.com/grenlight/idroid", rev = "436b550b79ecee827681aeea28ffa34f9d0696a3" }
 
 nalgebra-glm = "*"
 image = "0.22.3"
@@ -46,10 +46,8 @@ rand = "0.6"
 [patch."https://github.com/gfx-rs/wgpu"]
 wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "615f6f4af22945c6c293ca6729a5951e40fa4724"}
 wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "615f6f4af22945c6c293ca6729a5951e40fa4724"}
-# wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
-# wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "7a57b4590b8a0ea1f608d54b901f09593f0f3d3c"}
-# [patch.crates-io]
-# rendy-memory = {git = "https://github.com/amethyst/rendy", version = "0.5", rev = "8c5388c3e5ba63a5d48088e91f6aab88f03e23b9" } 
+# wgn = {git = "https://github.com/grenlight/wgpu", package = "wgpu-native", rev = "469c086a1ae8843f87296f0b29dd7a6031aca3f9"}
+# wgc = {git = "https://github.com/grenlight/wgpu", package = "wgpu-core", rev = "469c086a1ae8843f87296f0b29dd7a6031aca3f9"}
 
 # # fixed bug: https://github.com/gfx-rs/gfx/issues/3086
 # gfx-backend-metal = { git = "https://github.com/gfx-rs/gfx", rev = "4130c574ce274f4afd114005046cc10380805f7e" }

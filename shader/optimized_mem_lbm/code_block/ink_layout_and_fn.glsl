@@ -23,7 +23,7 @@ layout(set = 0, binding = 2) uniform TouchUniform {
   uvec2 tex_size;
 };
 
-layout(set = 0, binding = 3) buffer LatticeBuffer {
+layout(set = 0, binding = 3) buffer D2Q9Buffer {
   float collid_streaming_cells[];
 };
 // only temporarily save lattice one direction value
@@ -32,8 +32,8 @@ layout(set = 0, binding = 4) buffer TempScalarBuffer {
 };
 
 struct LatticeInfo {
-  int material;
-  int diffuse_step_count;
+  float material;
+  float diffuse_step_count;
   //  dynamic iter value, change material ultimately
   float iter;
   float threshold;

@@ -12,7 +12,7 @@ layout(set = 0, binding = 1) uniform ParticleUniform {
   // space
   vec2 pixel_distance;
 };
-layout(set = 0, binding = 2) buffer FluidBuffer { vec4 fb[]; };
+layout(set = 0, binding = 2) buffer FluidBuffer { float fb[]; };
 layout(set = 0, binding = 3) buffer ScalarBuffer { float diffuse[]; };
 
 float src_1f(int u, int v) {

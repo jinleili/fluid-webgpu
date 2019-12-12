@@ -31,26 +31,21 @@ impl D2Q9Flow {
 
         let swap = 0_i32;
 
-        let mut encoder =
-            app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+        let mut encoder = app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
-        let (lattice_info_data, lattice_data, fluid_data) =
-            init_data(lattice.width, lattice.height, flow_type);
+        let (lattice_info_data, lattice_data, fluid_data) = init_data(lattice.width, lattice.height, flow_type);
 
-        let lattice0_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
-        let lattice1_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &lattice_data);
+        let lattice0_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &lattice_data);
+        let lattice1_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &lattice_data);
 
-        let info_buffer =
-            BufferObj::create_storage_buffer(&mut app_view.device, &lattice_info_data);
-        let fluid_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &fluid_data);
+        let info_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &lattice_info_data);
+        let fluid_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &fluid_data);
 
         let (d2q9_uniform_data, fluid_uniform_data) =
             fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
-        let uniform_buf0 =
-            BufferObj::create_uniform_buffer(&mut app_view.device, &d2q9_uniform_data);
+        let uniform_buf0 = BufferObj::create_uniform_buffer(&mut app_view.device, &mut encoder, &d2q9_uniform_data);
 
-        let uniform_buf =
-            BufferObj::create_uniform_buffer(&mut app_view.device, &fluid_uniform_data);
+        let uniform_buf = BufferObj::create_uniform_buffer(&mut app_view.device, &mut encoder, &fluid_uniform_data);
 
         // Create the render pipeline
         let stream_shader = match flow_type {
@@ -76,17 +71,16 @@ impl D2Q9Flow {
         );
 
         let particle_node: Box<dyn RenderNode> = match flow_type {
-            FlowType::Poiseuille | FlowType::LidDrivenCavity => {
-                Box::new(TrajectoryRenderNode::new(
-                    &app_view.sc_desc,
-                    &mut app_view.device,
-                    &fluid_buffer,
-                    &info_buffer,
-                    flow_type,
-                    lattice,
-                    particle_num,
-                ))
-            }
+            FlowType::Poiseuille | FlowType::LidDrivenCavity => Box::new(TrajectoryRenderNode::new(
+                &app_view.sc_desc,
+                &mut app_view.device,
+                &mut encoder,
+                &fluid_buffer,
+                &info_buffer,
+                flow_type,
+                lattice,
+                particle_num,
+            )),
             _ => panic!("flow type is not implemented!"),
         };
 
@@ -120,10 +114,7 @@ impl SurfaceView for D2Q9Flow {
         // if self.swap % 10 != 0 {
         //     return;
         // }
-        let mut encoder = self
-            .app_view
-            .device
-            .create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
+        let mut encoder = self.app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
         {
             let mut cpass = encoder.begin_compute_pass();
             self.stream_node.dispatch(&mut cpass);
@@ -131,11 +122,7 @@ impl SurfaceView for D2Q9Flow {
             self.particle_node.dispatch(&mut cpass);
         }
 
-        let frame = self
-            .app_view
-            .swap_chain
-            .get_next_texture()
-            .expect("swap_chain.get_next_texture() timeout");
+        let frame = self.app_view.swap_chain.get_next_texture().expect("swap_chain.get_next_texture() timeout");
         {
             self.particle_node.begin_render_pass(&mut self.app_view.device, &frame, &mut encoder);
         }
@@ -145,9 +132,7 @@ impl SurfaceView for D2Q9Flow {
     }
 }
 
-pub fn init_data(
-    nx: u32, ny: u32, flow_type: FlowType,
-) -> (Vec<LatticeInfo>, Vec<f32>, Vec<MacroInfo>) {
+pub fn init_data(nx: u32, ny: u32, flow_type: FlowType) -> (Vec<LatticeInfo>, Vec<f32>, Vec<MacroInfo>) {
     let mut lattice: Vec<f32> = vec![];
     let mut fluid: Vec<MacroInfo> = vec![];
     let mut info: Vec<LatticeInfo> = vec![];
@@ -159,8 +144,8 @@ pub fn init_data(
             }
             fluid.push(MacroInfo { velocity: [0.0, 0.0], rho: 1.0, any: 0.0 });
             info.push(LatticeInfo {
-                material: setup_lattice(i, j, nx, ny, flow_type) as i32,
-                diffuse_step_count: 0,
+                material: setup_lattice(i, j, nx, ny, flow_type) as f32,
+                diffuse_step_count: 0.0,
                 iter: 0.0,
                 threshold: 0.0,
             })

@@ -1,5 +1,6 @@
 {
     "editor.formatOnPaste": true,
     "editor.fontSize": 14,
-    "editor.wordWrapColumn": 120
+    "editor.wordWrapColumn": 140,
+    "files.autoSave": "afterDelay"
 }

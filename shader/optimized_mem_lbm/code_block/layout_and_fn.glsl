@@ -21,22 +21,17 @@ layout(set = 0, binding = 1) uniform FluidUniform {
   vec2 tau_and_omega;
 };
 
-layout(set = 0, binding = 2) buffer FluidBuffer0 {
+layout(set = 0, binding = 2) buffer D2Q9Buffer {
   float collid_streaming_cells[];
 };
 // only temporarily save lattice one direction value
-layout(set = 0, binding = 3) buffer FluidBuffer1 { float temp_scalar_cells[]; };
+layout(set = 0, binding = 3) buffer ScalarBuffer { float temp_scalar_cells[]; };
 
-struct MacroInfo {
-  vec2 velocity;
-  float rho;
-};
-layout(set = 0, binding = 4) buffer FluidBuffer2 {
-  MacroInfo macro_info[];
-};
+layout(set = 0, binding = 4) buffer MacroInfoBuffer { float macro_info[]; };
 
 struct LatticeInfo {
-  int material;
+  float material;
+  float diffuse_step_count;
   //  dynamic iter value, change material ultimately
   float iter;
   float threshold;

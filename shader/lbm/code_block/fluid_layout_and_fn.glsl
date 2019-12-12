@@ -32,7 +32,8 @@ struct MacroInfo {
 layout(set = 0, binding = 4) buffer FluidBuffer2 { MacroInfo macro_info[]; };
 
 struct LatticeInfo {
-  int material;
+  float material;
+  float diffuse_step_count;
   //  dynamic iter value, change material ultimately
   float iter;
   float threshold;
