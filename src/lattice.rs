@@ -12,14 +12,6 @@ pub struct LatticeInfo {
     pub threshold: f32,
 }
 
-#[repr(C)]
-#[derive(Copy, Clone, AsBytes, FromBytes)]
-pub struct MacroInfo {
-    pub velocity: [f32; 2],
-    pub rho: f32,
-    pub any: f32,
-}
-
 pub fn setup_lattice(x: u32, y: u32, nx: u32, ny: u32, flow_type: FlowType) -> u32 {
     // 不同的边用 10 的倍数来表示？
     match flow_type {

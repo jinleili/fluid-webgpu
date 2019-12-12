@@ -40,11 +40,7 @@ struct LatticeInfo {
 };
 layout(set = 0, binding = 5) buffer InfoBuffer { LatticeInfo lattice_info[]; };
 
-struct MacroInfo {
-  vec2 velocity;
-  float rho;
-};
-layout(set = 0, binding = 6) buffer MacroBuffer { MacroInfo macro_info[]; };
+layout(set = 0, binding = 6) buffer MacroBuffer { float macro_info[]; };
 
 layout(set = 0, binding = 7) buffer DiffuseBuffer { float diffuse[]; };
 

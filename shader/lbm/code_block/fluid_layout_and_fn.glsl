@@ -24,12 +24,7 @@ layout(set = 0, binding = 1) uniform FluidUniform {
 
 layout(set = 0, binding = 2) buffer FluidBuffer0 { float collidingCells[]; };
 layout(set = 0, binding = 3) buffer FluidBuffer1 { float streamingCells[]; };
-
-struct MacroInfo {
-  vec2 velocity;
-  float rho;
-};
-layout(set = 0, binding = 4) buffer FluidBuffer2 { MacroInfo macro_info[]; };
+layout(set = 0, binding = 4) buffer FluidBuffer2 { float macro_info[]; };
 
 struct LatticeInfo {
   float material;

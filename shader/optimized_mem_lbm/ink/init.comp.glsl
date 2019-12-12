@@ -15,7 +15,7 @@ void main() {
     collid_streaming_cells[latticeIndex(uv) + i] = 0.0;
   }
 
-  macro_info[field_index * 3] = 0.0;
+      macro_info[field_index * 3] = 0.0;
   macro_info[field_index * 3 + 1] = 0.0;
   if (isBounceBackCell(int(lattice_info[field_index].material))) {
     macro_info[field_index * 3 + 2] = 0.0;

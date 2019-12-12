@@ -4,7 +4,7 @@ use idroid::SurfaceView;
 
 use wgpu::Extent3d;
 
-use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo, MacroInfo};
+use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo};
 use crate::particle::{RenderNode, TrajectoryRenderNode};
 use crate::FlowType;
 use uni_view::{AppView, GPUContext};
@@ -33,13 +33,14 @@ impl D2Q9Flow {
 
         let mut encoder = app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
-        let (lattice_info_data, lattice_data, fluid_data) = init_data(lattice.width, lattice.height, flow_type);
+        let lattice_info_data = init_data(lattice.width, lattice.height, flow_type);
+        let scalar_lattice_size = (lattice.width * lattice.height * 4) as wgpu::BufferAddress;
 
-        let lattice0_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &lattice_data);
-        let lattice1_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &lattice_data);
+        let lattice0_buffer = BufferObj::create_empty_storage_buffer(&mut app_view.device, scalar_lattice_size * 9);
+        let lattice1_buffer = BufferObj::create_empty_storage_buffer(&mut app_view.device, scalar_lattice_size * 9);
 
         let info_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &lattice_info_data);
-        let fluid_buffer = BufferObj::create_storage_buffer(&mut app_view.device, &mut encoder, &fluid_data);
+        let fluid_buffer = BufferObj::create_empty_storage_buffer(&mut app_view.device, scalar_lattice_size * 3);
 
         let (d2q9_uniform_data, fluid_uniform_data) =
             fluid_uniform(lattice, particle_num, flow_type, &app_view.sc_desc);
@@ -132,17 +133,11 @@ impl SurfaceView for D2Q9Flow {
     }
 }
 
-pub fn init_data(nx: u32, ny: u32, flow_type: FlowType) -> (Vec<LatticeInfo>, Vec<f32>, Vec<MacroInfo>) {
-    let mut lattice: Vec<f32> = vec![];
-    let mut fluid: Vec<MacroInfo> = vec![];
+pub fn init_data(nx: u32, ny: u32, flow_type: FlowType) -> Vec<LatticeInfo> {
     let mut info: Vec<LatticeInfo> = vec![];
 
     for j in 0..ny {
         for i in 0..nx {
-            for _ in 0..9 {
-                lattice.push(0.0);
-            }
-            fluid.push(MacroInfo { velocity: [0.0, 0.0], rho: 1.0, any: 0.0 });
             info.push(LatticeInfo {
                 material: setup_lattice(i, j, nx, ny, flow_type) as f32,
                 diffuse_step_count: 0.0,
@@ -151,5 +146,5 @@ pub fn init_data(nx: u32, ny: u32, flow_type: FlowType) -> (Vec<LatticeInfo>, Ve
             })
         }
     }
-    (info, lattice, fluid)
+    info
 }

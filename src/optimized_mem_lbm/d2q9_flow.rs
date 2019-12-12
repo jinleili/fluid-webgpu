@@ -4,7 +4,7 @@ use idroid::SurfaceView;
 use wgpu::Extent3d;
 
 use super::CollideStreamNode;
-use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo, MacroInfo};
+use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo};
 
 use crate::particle::{PigmentDiffuseRenderNode, RenderNode, TrajectoryRenderNode};
 use crate::{D2Q9Uniform, FlowType, FluidUniform};

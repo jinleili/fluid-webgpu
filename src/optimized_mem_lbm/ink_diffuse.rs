@@ -4,7 +4,7 @@ use idroid::SurfaceView;
 use wgpu::{Extent3d, TextureView};
 
 use super::CollideStreamNode;
-use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo, MacroInfo};
+use crate::lattice::{fluid_uniform, setup_lattice, LatticeInfo};
 
 use crate::particle::{PigmentDiffuseRenderNode, RenderNode};
 use crate::FlowType;
@@ -38,9 +38,9 @@ impl InkDiffuse {
         let mut app_view = app_view;
         let flow_type = FlowType::Ink;
 
-        let (lattice_num, particle_num) = ((200, 150), Extent3d { width: 0, height: 0, depth: 0 });
-        let threadgroup_count: (u32, u32) = ((lattice_num.0 + 15) / 16, (lattice_num.1 + 15) / 16);
-        let lattice = Extent3d { width: lattice_num.0, height: lattice_num.1, depth: 1 };
+        let lattice = Extent3d { width: 200, height: 150, depth: 1 };
+        let particle_num = Extent3d { width: 0, height: 0, depth: 0 };
+        let threadgroup_count: (u32, u32) = ((lattice.width + 15) / 16, (lattice.height + 15) / 16);
 
         let mut encoder = app_view.device.create_command_encoder(&wgpu::CommandEncoderDescriptor { todo: 0 });
 
